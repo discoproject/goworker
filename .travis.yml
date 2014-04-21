@@ -7,7 +7,7 @@ go:
   - tip
 
 install:
-  go build disco/jobpack
-  go build disco/worker
-  go build disco/examples
-  export GOPATH=`pwd`
+  - export GOPATH=`pwd`
+  - go build disco/jobpack
+  - go build disco/worker
+  - go build disco/examples
