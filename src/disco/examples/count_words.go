@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"disco/jobutil"
 	"disco/worker"
 	"fmt"
 	"io"
@@ -17,7 +18,7 @@ func Check(err error) {
 }
 
 func Map(input string, writer io.Writer, task *worker.Task) {
-	reader := worker.AddressReader(input, task)
+	reader := jobutil.AddressReader(input, task.Disco_data)
 	defer reader.Close()
 	body, err := ioutil.ReadAll(reader)
 	Check(err)
@@ -30,7 +31,7 @@ func Map(input string, writer io.Writer, task *worker.Task) {
 }
 
 func Reduce(input string, writer io.Writer, task *worker.Task) {
-	reader := worker.AddressReader(input, task)
+	reader := jobutil.AddressReader(input, task.Disco_data)
 	defer reader.Close()
 	//TODO sort data only if necessary
 	sreader := worker.Sorted(reader)

@@ -1,4 +1,4 @@
-package worker
+package jobutil
 
 import (
 	"bufio"
@@ -40,9 +40,9 @@ func (dr *DiscoReader) Close() error {
 	return dr.file.Close()
 }
 
-func disco_reader(address string, task *Task) io.ReadCloser {
+func disco_reader(address string, dataDir string) io.ReadCloser {
 	dr := new(DiscoReader)
-	path := absolute_disco_path(address, task.Disco_data)
+	path := absolute_disco_path(address, dataDir)
 	file, err := os.Open(path)
 	Check(err)
 	dr.file = file
@@ -95,19 +95,19 @@ func (dr *DirReader) Close() error {
 	return dr.dirfile.Close()
 }
 
-func dir_reader(address string, task *Task) io.ReadCloser {
+func dir_reader(address string, dataDir string) io.ReadCloser {
 	dr := new(DirReader)
-	path := absolute_dir_path(address, task.Disco_data)
+	path := absolute_dir_path(address, dataDir)
 	file, err := os.Open(path)
 	Check(err)
 	dr.dirfile = file
 	dr.scanner = bufio.NewScanner(dr.dirfile)
 	dr.file = nil
-	dr.disco_data = task.Disco_data
+	dr.disco_data = dataDir
 	return dr
 }
 
-func AddressReader(address string, task *Task) io.ReadCloser {
+func AddressReader(address string, dataDir string) io.ReadCloser {
 	scheme := strings.Split(address, "://")[0]
 	switch scheme {
 	case "http":
@@ -115,9 +115,9 @@ func AddressReader(address string, task *Task) io.ReadCloser {
 	case "https":
 		return http_reader(address)
 	case "disco":
-		return disco_reader(address, task)
+		return disco_reader(address, dataDir)
 	case "dir":
-		return dir_reader(address, task)
+		return dir_reader(address, dataDir)
 	default:
 		log.Fatal("Cannot read the input: ", scheme, " : ", address)
 	}
