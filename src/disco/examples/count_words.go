@@ -2,7 +2,7 @@ package main
 
 import (
 	"bufio"
-	"disco/lib"
+	"disco/worker"
 	"fmt"
 	"io"
 	"io/ioutil"
