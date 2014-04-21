@@ -19,3 +19,5 @@ $ ./bin/jobpack localhost:8989  src/disco/examples/ http://discoproject.org/medi
 To submit a job to Disco master.
 
 Warning: This is a work in progress and it is not ready for production use.
+
+Build Status: [Travis-CI](http://travis-ci.org/pooya/goworker) :: ![Travis-CI](https://secure.travis-ci.org/pooya/goworker.png)
