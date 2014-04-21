@@ -168,6 +168,19 @@ type Worker struct {
 
 type Process func(string, io.Writer, *Task)
 
+func (w *Worker) runStage(output_name string, process Process) {
+	output, err := os.Create(output_name)
+	Check(err)
+	process(w.input.replica_location, output, w.task)
+	output.Close()
+	w.output.output_location = "disco://" + output_name[len(w.task.Disco_data)+1:]
+	output, err = os.Open(output_name)
+	Check(err)
+	fileinfo, err := output.Stat()
+	Check(err)
+	w.output.output_size = fileinfo.Size()
+}
+
 func Run(Map Process, Reduce Process) {
 	var w Worker
 	send_worker()
@@ -179,31 +192,11 @@ func Run(Map Process, Reduce Process) {
 
 	w.output = new(Output)
 	if w.task.Stage == "map" {
-		output_name := pwd + "/map_out"
-		output, err := os.Create(output_name)
-		Check(err)
-		Map(w.input.replica_location, output, w.task)
-		output.Close()
-		w.output.output_location = "disco://" + output_name[len(w.task.Disco_data)+1:]
-		output, err = os.Open(output_name)
-		Check(err)
-		fileinfo, err := output.Stat()
-		Check(err)
-		w.output.output_size = fileinfo.Size()
+		w.runStage(pwd+"/map_out", Map)
 	} else if w.task.Stage == "map_shuffle" {
 		w.output.output_location = w.input.replica_location
 	} else {
-		output_name := pwd + "/reduce_out"
-		output, err := os.Create(output_name)
-		Check(err)
-		Reduce(w.input.replica_location, output, w.task)
-		output.Close()
-		w.output.output_location = "disco://" + output_name[len(w.task.Disco_data)+1:]
-		output, err = os.Open(output_name)
-		Check(err)
-		fileinfo, err := output.Stat()
-		Check(err)
-		w.output.output_size = fileinfo.Size()
+		w.runStage(pwd+"/reduce_out", Reduce)
 	}
 
 	send_output(w.output)
