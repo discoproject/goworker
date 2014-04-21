@@ -64,7 +64,7 @@ func get_results(master string, jobname string) {
 	for _, output := range outputs {
 		fmt.Println(output)
 
-		disco_home := os.Getenv("DISCO_HOME")
+		disco_home := jobutil.Setting("DISCO_HOME")
 		readCloser := jobutil.AddressReader(output, disco_home+"/data")
 		defer readCloser.Close()
 		scanner := bufio.NewScanner(readCloser)

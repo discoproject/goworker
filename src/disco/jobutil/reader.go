@@ -107,6 +107,35 @@ func dir_reader(address string, dataDir string) io.ReadCloser {
 	return dr
 }
 
+func scheme_split(url string) (scheme, rest string) {
+	if index := strings.Index(url, "://"); index == -1 {
+		return "", url
+	} else {
+		return url[:index], url[index+len("://"):]
+	}
+}
+
+func loc_str(url string) (scheme, locstr, path string) {
+	scheme, rest := scheme_split(url)
+
+	if index := strings.Index(rest, "/"); index == -1 {
+		locstr = rest
+		path = ""
+	} else {
+		locstr, path = rest[:index], rest[index+len("/"):]
+	}
+	return scheme, locstr, path
+}
+
+func convert_uri(uri string) string {
+	scheme, locstr, path := loc_str(uri)
+	if scheme == "disco" {
+		return "http://" + Setting("DISCO_MASTER") + ":" + Setting("DISCO_PORT") +
+			"/" + path
+	}
+	return locstr
+}
+
 func AddressReader(address string, dataDir string) io.ReadCloser {
 	scheme := strings.Split(address, "://")[0]
 	switch scheme {

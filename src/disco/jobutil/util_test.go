@@ -34,3 +34,11 @@ func TestDecodeReady(t *testing.T) {
 		t.Error("should not find any input", result[0])
 	}
 }
+
+func SettingTest(t *testing.T) {
+	SetKeyValue("hello", "world")
+	val := Setting("hello")
+	if val != "world" {
+		t.Error("wrong value", val)
+	}
+}
