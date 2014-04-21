@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -39,5 +40,9 @@ func Post(master string) {
 	}
 	body, err := ioutil.ReadAll(resp.Body)
 	Check(err)
-	fmt.Printf("%s\n", body)
+
+	result := make([]interface{}, 2)
+	err = json.Unmarshal(body, &result)
+	Check(err)
+	fmt.Println(result[1])
 }
