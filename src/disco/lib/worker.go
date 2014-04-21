@@ -121,7 +121,8 @@ func send_output(output *Output) {
 	v[2] = output.output_size
 
 	send("OUTPUT", v)
-	//TODO see if we should read the result from Disco.
+	_, _, line := recv()
+	debug("info", string(line))
 }
 
 func request_done() {
