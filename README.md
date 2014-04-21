@@ -1,8 +1,21 @@
-After cloning this repo, and setting GOPATH you can issue:
+Go Worker for Disco
+===================
 
-$ go build disco/jobpack
+This is an implementation of [Disco worker protocol](http://disco.readthedocs.org/en/latest/howto/worker.html) in golang.
+See [discoproject.org] (http://discoproject.org) for more information.
 
-to compile a basic utility for creation and submission of jobpacks. Then use the
-following command to submit the jobpack to the disco master as a job.
+To use this worker set the GOPATH to point to the root directory of this repo and then:
 
-$ ./jobpack localhost:8989  src/disco/examples/ http://discoproject.org/media/text/chekhov.txt
+```
+$ go install disco/jobpack
+```
+
+creates a basic utility for creation and submission of jobpacks.  It can be used as
+
+```
+$ ./bin/jobpack localhost:8989  src/disco/examples/ http://discoproject.org/media/text/chekhov.txt
+```
+
+To submit a job to Disco master.
+
+Warning: This is a work in progress and it is not ready for production use.
