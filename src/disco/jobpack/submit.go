@@ -1,12 +1,14 @@
 package main
 
 import (
+	"bufio"
 	"bytes"
 	"disco/jobutil"
 	"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"os"
 	"strings"
@@ -59,5 +61,18 @@ func Post(master string) {
 func get_results(master string, jobname string) {
 	outputs, err := jobutil.Wait(master, jobname, 20)
 	Check(err)
-	fmt.Println(outputs)
+	for _, output := range outputs {
+		fmt.Println(output)
+
+		disco_home := os.Getenv("DISCO_HOME")
+		readCloser := jobutil.AddressReader(output, disco_home+"/data")
+		defer readCloser.Close()
+		scanner := bufio.NewScanner(readCloser)
+		for scanner.Scan() {
+			fmt.Println(scanner.Text())
+		}
+		if err := scanner.Err(); err != nil {
+			log.Fatal(err)
+		}
+	}
 }
