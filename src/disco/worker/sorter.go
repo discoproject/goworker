@@ -23,6 +23,8 @@ func put_raw_data_in_file(input io.Reader) string {
 func Sorted(input io.Reader) io.ReadCloser {
 	name := put_raw_data_in_file(input)
 	//TODO this version is only capable of sorting ascii files.  We need a better approach.
+	err := os.Setenv("LC_ALL", "C")
+	Check(err)
 	out, err := exec.Command("sort", "-k", "1,1", "-T", ".", "-S", "10%", "-o", name, name).Output()
 	if err != nil {
 		log.Fatal("sorting input failed: ", out)

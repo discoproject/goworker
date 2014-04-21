@@ -38,6 +38,17 @@ func TestDifferntSize(t *testing.T) {
 	assert_read(scanner, List, t)
 }
 
+func TestUnicode(t *testing.T) {
+	const input = "a\n\340\n"
+	reader := strings.NewReader(input)
+	sreader := Sorted(reader)
+	defer sreader.Close()
+	scanner := bufio.NewScanner(sreader)
+
+	List := []string{"a", "\340"}
+	assert_read(scanner, List, t)
+}
+
 func assert_read(scanner *bufio.Scanner, List []string, t *testing.T) {
 	for _, word := range List {
 		scanner.Scan()
