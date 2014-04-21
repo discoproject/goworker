@@ -9,7 +9,7 @@ import (
 func TestSorted(t *testing.T) {
 	const input = "aaa\nbbb\nccc\n"
 	reader := strings.NewReader(input)
-	sreader := sorted(reader)
+	sreader := Sorted(reader)
 	defer sreader.Close()
 	scanner := bufio.NewScanner(sreader)
 	List := []string{"aaa", "bbb", "ccc"}
@@ -19,7 +19,7 @@ func TestSorted(t *testing.T) {
 func TestNotSorted(t *testing.T) {
 	const input = "ccc\nbbb\naaa\n"
 	reader := strings.NewReader(input)
-	sreader := sorted(reader)
+	sreader := Sorted(reader)
 	defer sreader.Close()
 	scanner := bufio.NewScanner(sreader)
 
@@ -30,7 +30,7 @@ func TestNotSorted(t *testing.T) {
 func TestDifferntSize(t *testing.T) {
 	const input = "c\nbb\naaa\n"
 	reader := strings.NewReader(input)
-	sreader := sorted(reader)
+	sreader := Sorted(reader)
 	defer sreader.Close()
 	scanner := bufio.NewScanner(sreader)
 
