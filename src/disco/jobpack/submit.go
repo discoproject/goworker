@@ -4,18 +4,14 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"os"
 	"strings"
 )
 
-func Post(master string) {
-	if !strings.HasPrefix(master, "http") {
-		master = "http://" + master
-	}
-	url := master + "/disco/job/new"
-
+func submit_job(master string) io.ReadCloser {
 	file, err := os.Open("jp")
 	Check(err)
 	defer file.Close()
@@ -31,14 +27,25 @@ func Post(master string) {
 		panic("could not read all")
 	}
 
+	url := master + "/disco/job/new"
 	resp, err := http.Post(url, "image/jpeg", bytes.NewReader(data))
 	Check(err)
 
-	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
 		fmt.Println("bad response: ", resp.Status)
 	}
-	body, err := ioutil.ReadAll(resp.Body)
+
+	return resp.Body
+}
+
+func Post(master string) {
+	if !strings.HasPrefix(master, "http") {
+		master = "http://" + master
+	}
+
+	response := submit_job(master)
+	defer response.Close()
+	body, err := ioutil.ReadAll(response)
 	Check(err)
 
 	result := make([]interface{}, 2)
