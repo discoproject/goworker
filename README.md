@@ -20,4 +20,6 @@ To submit a job to Disco master.
 
 Warning: This is a work in progress and it is not ready for production use.
 
+This implementation requires golang v1.1 or later.
+
 Build Status: [Travis-CI](http://travis-ci.org/pooya/goworker) :: ![Travis-CI](https://secure.travis-ci.org/pooya/goworker.png)
