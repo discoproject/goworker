@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"disco/jobutil"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -51,5 +52,12 @@ func Post(master string) {
 	result := make([]interface{}, 2)
 	err = json.Unmarshal(body, &result)
 	Check(err)
-	fmt.Println(result[1])
+	jobname := result[1].(string)
+	get_results(master, jobname)
+}
+
+func get_results(master string, jobname string) {
+	outputs, err := jobutil.Wait(master, jobname, 20)
+	Check(err)
+	fmt.Println(outputs)
 }
