@@ -55,7 +55,8 @@ func Post(master string) {
 	err = json.Unmarshal(body, &result)
 	Check(err)
 	jobname := result[1].(string)
-	get_results(master, jobname)
+	fmt.Println(jobname)
+	//get_results(master, jobname)
 }
 
 func get_results(master string, jobname string) {
