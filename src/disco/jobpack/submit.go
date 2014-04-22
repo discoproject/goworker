@@ -56,7 +56,7 @@ func Post(master string) {
 	Check(err)
 	jobname := result[1].(string)
 	fmt.Println(jobname)
-	//get_results(master, jobname)
+	get_results(master, jobname)
 }
 
 func get_results(master string, jobname string) {
@@ -65,8 +65,8 @@ func get_results(master string, jobname string) {
 	for _, output := range outputs {
 		fmt.Println(output)
 
-		disco_home := jobutil.Setting("DISCO_HOME")
-		readCloser := jobutil.AddressReader(output, disco_home+"/data")
+		disco_root := jobutil.Setting("DISCO_ROOT")
+		readCloser := jobutil.AddressReader(output, disco_root+"/data")
 		defer readCloser.Close()
 		scanner := bufio.NewScanner(readCloser)
 		for scanner.Scan() {
