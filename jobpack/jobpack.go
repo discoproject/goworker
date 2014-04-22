@@ -9,6 +9,8 @@ import (
 	"os"
 	"os/exec"
 	"os/user"
+	"path/filepath"
+	"strings"
 )
 
 const (
@@ -53,29 +55,38 @@ type Header struct {
 	_             [27]uint32
 }
 
-func compile(workerDir string) {
+func compile(workerDir string) string {
 	pwd, err := os.Getwd()
 	Check(err)
 
-	err = os.Chdir(workerDir)
-	Check(err)
-	out, err := exec.Command("go", "build", "-o", "worker").Output()
-	if err != nil {
-		log.Fatal("Worker compilation failed with: ", out)
+	if strings.HasSuffix(workerDir, ".go") {
+		var file string
+		workerDir, file = filepath.Split(workerDir)
+		if workerDir != "" {
+			err = os.Chdir(workerDir)
+			Check(err)
+		}
+		_, err := exec.Command("go", "build", "-o", "worker", file).Output()
+		Check(err)
+	} else {
+		err = os.Chdir(workerDir)
+		Check(err)
+		_, err := exec.Command("go", "build", "-o", "worker").Output()
+		Check(err)
 	}
 	err = os.Chdir(pwd)
 	Check(err)
+	return filepath.Join(workerDir, "worker")
 }
 
-func zipit(workerDir string) string {
-	worker := workerDir + "/worker"
+func zipit(workerExe string) string {
 	//Open this executable for reading
-	exeFile, err := os.Open(worker)
+	exeFile, err := os.Open(workerExe)
 	Check(err)
 	defer exeFile.Close()
 
 	// create the zipfile
-	zipfile, err := os.Create(worker + ".zip")
+	zipfile, err := os.Create(workerExe + ".zip")
 	Check(err)
 	defer zipfile.Close()
 
@@ -91,7 +102,7 @@ func zipit(workerDir string) string {
 	err = w.Close()
 	Check(err)
 
-	return worker + ".zip"
+	return workerExe + ".zip"
 }
 
 func Encode(jobdict map[string]interface{}, jobenv map[string]interface{},
@@ -177,8 +188,8 @@ func CreateJobPack(inputs []string, workerDir string) {
 	jp.AddToJobDict("map?", true)
 
 	jp.AddToJobEnv("en", "v")
-	compile(workerDir)
-	zipFileName := zipit(workerDir)
+	workerExe := compile(workerDir)
+	zipFileName := zipit(workerExe)
 	Encode(jp.jobdict, jp.jobenv, zipFileName)
 }
 
