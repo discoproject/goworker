@@ -2,9 +2,9 @@ package worker
 
 import (
 	"bufio"
-	"github.com/discoproject/goworker/jobutil"
 	"encoding/json"
 	"fmt"
+	"github.com/discoproject/goworker/jobutil"
 	"io"
 	"log"
 	"os"
@@ -167,12 +167,15 @@ type Worker struct {
 	output *Output
 }
 
-type Process func(string, io.Writer, *Task)
+type Process func(io.Reader, io.Writer)
 
 func (w *Worker) runStage(output_name string, process Process) {
 	output, err := os.Create(output_name)
 	Check(err)
-	process(w.input.replica_location, output, w.task)
+	readCloser := jobutil.AddressReader(w.input.replica_location,
+		jobutil.Setting("DISCO_DATA"))
+	process(readCloser, output)
+	readCloser.Close()
 	output.Close()
 	w.output.output_location = "disco://" + output_name[len(w.task.Disco_data)+1:]
 	output, err = os.Open(output_name)

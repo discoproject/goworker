@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"fmt"
 
-	"github.com/discoproject/goworker/jobutil"
 	"github.com/discoproject/goworker/worker"
 
 	"io"
@@ -19,9 +18,7 @@ func Check(err error) {
 	}
 }
 
-func Map(input string, writer io.Writer, task *worker.Task) {
-	reader := jobutil.AddressReader(input, task.Disco_data)
-	defer reader.Close()
+func Map(reader io.Reader, writer io.Writer) {
 	body, err := ioutil.ReadAll(reader)
 	Check(err)
 	strBody := string(body)
@@ -32,9 +29,7 @@ func Map(input string, writer io.Writer, task *worker.Task) {
 	}
 }
 
-func Reduce(input string, writer io.Writer, task *worker.Task) {
-	reader := jobutil.AddressReader(input, task.Disco_data)
-	defer reader.Close()
+func Reduce(reader io.Reader, writer io.Writer) {
 	//TODO sort data only if necessary
 	sreader := worker.Sorted(reader)
 	defer sreader.Close()
