@@ -11,8 +11,6 @@ import (
 	"strings"
 )
 
-var workerDir string
-
 type Inputs []string
 
 func (i *Inputs) String() string {
@@ -32,6 +30,7 @@ func main() {
 	var master string
 	var confFile string
 	var inputs Inputs
+	var workerDir string
 
 	const (
 		defaultMaster = "localhost"
@@ -66,7 +65,7 @@ func main() {
 	jobutil.AddFile(confFile)
 	jobutil.SetKeyValue("DISCO_MASTER", master)
 
-	CreateJobPack(inputs)
+	CreateJobPack(inputs, workerDir)
 	Post()
 	Cleanup()
 }

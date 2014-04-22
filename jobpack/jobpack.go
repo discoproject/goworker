@@ -53,7 +53,7 @@ type Header struct {
 	_             [27]uint32
 }
 
-func compile() {
+func compile(workerDir string) {
 	pwd, err := os.Getwd()
 	Check(err)
 
@@ -67,7 +67,7 @@ func compile() {
 	Check(err)
 }
 
-func zipit() string {
+func zipit(workerDir string) string {
 	worker := workerDir + "/worker"
 	//Open this executable for reading
 	exeFile, err := os.Open(worker)
@@ -94,7 +94,8 @@ func zipit() string {
 	return worker + ".zip"
 }
 
-func Encode(jobdict map[string]interface{}, jobenv map[string]interface{}) {
+func Encode(jobdict map[string]interface{}, jobenv map[string]interface{},
+	zipFileName string) {
 	job_dict, err := json.Marshal(jobdict)
 	Check(err)
 	job_dict_len := len(job_dict)
@@ -105,8 +106,6 @@ func Encode(jobdict map[string]interface{}, jobenv map[string]interface{}) {
 
 	//TODO there is no need to create the zipfile, we can actually pass the file to
 	//zipit and it will zip into jp.
-	compile()
-	zipFileName := zipit()
 	zipfile, err := os.Open(zipFileName)
 	Check(err)
 	defer zipfile.Close()
@@ -154,7 +153,7 @@ func Decode() {
 	Check(err)
 }
 
-func CreateJobPack(inputs []string) {
+func CreateJobPack(inputs []string, workerDir string) {
 	var jp JobPack
 	jp.Init()
 	host, err := os.Hostname()
@@ -178,7 +177,9 @@ func CreateJobPack(inputs []string) {
 	jp.AddToJobDict("map?", true)
 
 	jp.AddToJobEnv("en", "v")
-	Encode(jp.jobdict, jp.jobenv)
+	compile(workerDir)
+	zipFileName := zipit(workerDir)
+	Encode(jp.jobdict, jp.jobenv, zipFileName)
 }
 
 func Cleanup() {
