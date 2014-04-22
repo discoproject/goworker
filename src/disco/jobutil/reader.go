@@ -139,18 +139,19 @@ func HostAndPort(url string) (host, port string) {
 }
 
 func convert_uri(uri string) string {
-	scheme, _, path := loc_str(uri)
+	scheme, locstr, path := loc_str(uri)
 	// TODO make the conversion smarter! Do not convert if this is the localhost
 	// or the hostname matches our hostname.
 	// TODO add the dir scheme
 	if scheme == "disco" {
 		return "http://" + Setting("DISCO_MASTER") + ":" + Setting("DISCO_PORT") +
-			"/" + path
+			"/disco/" + locstr + "/" + path
 	}
 	return uri
 }
 
 func AddressReader(address string, dataDir string) io.ReadCloser {
+	address = convert_uri(address)
 	scheme, _ := scheme_split(address)
 
 	switch scheme {

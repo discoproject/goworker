@@ -33,7 +33,7 @@ func TestLocStr(t *testing.T) {
 }
 
 func TestConvertUri(t *testing.T) {
-	input := "disco://localhost/disco/localhost/05/Job@576:1c0fa:3033a/05/reduce"
+	input := "disco://localhost/05/Job@576:1c0fa:3033a/05/reduce"
 
 	SetKeyValue("DISCO_MASTER", "localhost")
 	SetKeyValue("DISCO_PORT", "8989")
