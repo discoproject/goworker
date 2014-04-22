@@ -13,7 +13,7 @@ $ go install disco/jobpack
 creates a basic utility for creation and submission of jobpacks.  It can be used as
 
 ```
-$ ./bin/jobpack localhost:8989  src/disco/examples/ /etc/disco/settings.py http://discoproject.org/media/text/chekhov.txt
+$ ./bin/jobpack localhost  src/disco/examples/ /etc/disco/settings.py http://discoproject.org/media/text/chekhov.txt
 ```
 
 To submit a job to Disco master.
