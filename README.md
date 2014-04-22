@@ -14,7 +14,7 @@ $ go get github.com/discoproject/goworker/worker
 
 Then, use the `jobpack` command to run workers. An example:
 ```
-$ jobpack localhost  $GOPATH/github.com/discoproject/goworker/examples/ http://discoproject.org/media/text/chekhov.txt
+$ $GOPATH/jobpack  -W examples/ -I http://discoproject.org/media/text/chekhov.txt
 ```
 
 To submit a job to Disco master.

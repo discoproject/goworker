@@ -1,30 +1,71 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 
 	"github.com/discoproject/goworker/jobutil"
 
+	"errors"
 	"os"
+	"strings"
 )
 
-var master string
-var workerDir string
-var jobInputs []string
+type Inputs []string
 
-// TODO add options instead of using the positional arguments
+func (i *Inputs) String() string {
+	return fmt.Sprint(*i)
+}
+func (i *Inputs) Set(value string) error {
+	if len(*i) > 0 {
+		return errors.New("Inputs already set")
+	}
+	for _, input := range strings.Split(value, ",") {
+		*i = append(*i, input)
+	}
+	return nil
+}
+
 func main() {
-	if len(os.Args) < 4 {
-		fmt.Println("Usage: jobpack discoConfFile master_url worker_dir input(s)")
+	var master string
+	var confFile string
+	var inputs Inputs
+	var workerDir string
+
+	const (
+		defaultMaster = "localhost"
+		masterUsage   = "The master node."
+		defaultConf   = "/etc/disco/settings.py"
+		confUsage     = "The setting file which contains disco settings"
+
+		// TODO also accept a single go file or an executable.
+		defaultWorker = ""
+		workerUsage   = "The worker directory"
+
+		defaultInputs = ""
+		inputUsage    = "The comma separated list of inputs to the job."
+	)
+	flag.StringVar(&master, "Master", defaultMaster, masterUsage)
+	flag.StringVar(&master, "M", defaultMaster, masterUsage)
+	flag.StringVar(&confFile, "Conf", defaultConf, confUsage)
+	flag.StringVar(&confFile, "C", defaultConf, confUsage)
+	flag.StringVar(&workerDir, "Worker", defaultWorker, workerUsage)
+	flag.StringVar(&workerDir, "W", defaultWorker, workerUsage)
+
+	flag.Var(&inputs, "Inputs", inputUsage)
+	flag.Var(&inputs, "I", inputUsage)
+
+	flag.Parse()
+
+	if workerDir == "" || len(inputs) == 0 {
+		fmt.Println("Usage: jobpack -W worker_dir -I input(s)")
 		os.Exit(1)
 	}
-	jobutil.SetKeyValue("DISCO_MASTER", os.Args[1])
-	workerDir = os.Args[2]
-	confFile := os.Args[3]
-	jobutil.AddFile(confFile)
-	jobInputs = os.Args[4:]
 
-	CreateJobPack()
+	jobutil.AddFile(confFile)
+	jobutil.SetKeyValue("DISCO_MASTER", master)
+
+	CreateJobPack(inputs, workerDir)
 	Post()
 	Cleanup()
 }
