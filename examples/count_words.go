@@ -2,9 +2,11 @@ package main
 
 import (
 	"bufio"
-	"disco/jobutil"
-	"disco/worker"
 	"fmt"
+
+	"github.com/dinedal/goworker/jobutil"
+	"github.com/dinedal/goworker/worker"
+
 	"io"
 	"io/ioutil"
 	"log"
