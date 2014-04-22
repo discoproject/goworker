@@ -4,20 +4,15 @@ Go Worker for Disco
 This is an implementation of [Disco worker protocol](http://disco.readthedocs.org/en/latest/howto/worker.html) in golang.
 See [discoproject.org] (http://discoproject.org) for more information.
 
-To use this worker install the three libraries via `go get`
+There is a sample worker in the examples directory.  In order to run this worker, you need the jobpack utility:
 
 ```
-$ go get github.com/discoproject/goworker/jobutil
 $ go get github.com/discoproject/goworker/jobpack
-$ go get github.com/discoproject/goworker/worker
+$ go install github.com/discoproject/goworker/jobpack
+$ $GOPATH/jobpack -W workerDir -I http://discoproject.org/media/text/chekhov.txt
 ```
 
-Then, use the `jobpack` command to run workers. An example:
-```
-$ $GOPATH/jobpack  -W examples/ -I http://discoproject.org/media/text/chekhov.txt
-```
-
-To submit a job to Disco master.
+Where workerDir is a directory that contains the map-reduce job (like the supplied examples directory).
 
 Warning: This is a work in progress and it is not ready for production use.
 
