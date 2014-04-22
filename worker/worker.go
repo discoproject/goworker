@@ -2,7 +2,7 @@ package worker
 
 import (
 	"bufio"
-	"disco/jobutil"
+	"github.com/discoproject/goworker/jobutil"
 	"encoding/json"
 	"fmt"
 	"io"
