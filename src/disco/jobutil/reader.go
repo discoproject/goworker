@@ -144,7 +144,7 @@ func convert_uri(uri string) string {
 	// or the hostname matches our hostname.
 	// TODO add the dir scheme
 	if scheme == "disco" {
-		return "http://" + Setting("DISCO_MASTER") + ":" + Setting("DISCO_PORT") +
+		return "http://" + locstr + ":" + Setting("DISCO_PORT") +
 			"/disco/" + locstr + "/" + path
 	}
 	return uri
