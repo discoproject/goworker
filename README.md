@@ -9,11 +9,8 @@ There is a sample worker in the examples directory.  In order to run this worker
 ```
 $ go get github.com/discoproject/goworker/jobpack
 $ go install github.com/discoproject/goworker/jobpack
-$ $GOPATH/jobpack -W workerDir -I http://discoproject.org/media/text/chekhov.txt
+$ $GOPATH/jobpack -W count_words.go -I http://discoproject.org/media/text/chekhov.txt
 ```
-
-Where workerDir is a directory that contains the map-reduce job (like the supplied examples directory).
-
 Warning: This is a work in progress and it is not ready for production use.
 
 This implementation requires golang v1.1 or later.
