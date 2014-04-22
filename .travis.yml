@@ -6,7 +6,6 @@ go:
   - tip
 
 install:
-  - export GOPATH=`pwd`
-  - go build disco/jobpack
-  - go build disco/worker
-  - go build disco/examples
+  - go get github.com/discoproject/goworker/jobpack
+  - go get github.com/discoproject/goworker/worker
+  - go get github.com/discoproject/goworker/jobutil
