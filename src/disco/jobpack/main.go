@@ -16,13 +16,13 @@ func main() {
 		fmt.Println("Usage: jobpack discoConfFile master_url worker_dir input(s)")
 		os.Exit(1)
 	}
-	master = os.Args[1]
+	jobutil.SetKeyValue("DISCO_MASTER", os.Args[1])
 	workerDir = os.Args[2]
 	confFile := os.Args[3]
 	jobutil.AddFile(confFile)
 	jobInputs = os.Args[4:]
 
 	CreateJobPack()
-	Post(master)
+	Post()
 	Cleanup()
 }

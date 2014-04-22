@@ -2,6 +2,7 @@ package worker
 
 import (
 	"bufio"
+	"disco/jobutil"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -185,6 +186,18 @@ func Run(Map Process, Reduce Process) {
 	var w Worker
 	send_worker()
 	w.task = request_task()
+
+	jobutil.SetKeyValue("HOST", w.task.Host)
+	master, port := jobutil.HostAndPort(w.task.Master)
+	jobutil.SetKeyValue("DISCO_MASTER", master)
+	if port != fmt.Sprintf("%d", w.task.Disco_port) {
+		panic("port mismatch: " + port)
+	}
+	jobutil.SetKeyValue("DISCO_PORT", port)
+	jobutil.SetKeyValue("PUT_PORT", string(w.task.Put_port))
+	jobutil.SetKeyValue("DISCO_DATA", w.task.Disco_data)
+	jobutil.SetKeyValue("DDFS_DATA", w.task.Ddfs_data)
+
 	w.input = request_input()
 
 	pwd, err := os.Getwd()

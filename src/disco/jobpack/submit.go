@@ -11,7 +11,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"strings"
 )
 
 func submit_job(master string) io.ReadCloser {
@@ -41,11 +40,8 @@ func submit_job(master string) io.ReadCloser {
 	return resp.Body
 }
 
-func Post(master string) {
-	if !strings.HasPrefix(master, "http") {
-		master = "http://" + master
-	}
-
+func Post() {
+	master = "http://" + jobutil.Setting("DISCO_MASTER") + ":" + jobutil.Setting("DISCO_PORT")
 	response := submit_job(master)
 	defer response.Close()
 	body, err := ioutil.ReadAll(response)

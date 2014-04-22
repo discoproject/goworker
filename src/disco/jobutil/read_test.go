@@ -44,3 +44,14 @@ func TestConvertUri(t *testing.T) {
 		t.Error("wrong output", output)
 	}
 }
+
+func TestHostPort(t *testing.T) {
+	input := "http://master:8989/something"
+	host, port := HostAndPort(input)
+	if host != "master" {
+		t.Error("wrong host", host)
+	}
+	if port != "8989" {
+		t.Error("wrong port", port)
+	}
+}

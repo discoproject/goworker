@@ -127,17 +127,32 @@ func loc_str(url string) (scheme, locstr, path string) {
 	return scheme, locstr, path
 }
 
+func HostAndPort(url string) (host, port string) {
+	_, locstr, _ := loc_str(url)
+	if index := strings.Index(locstr, ":"); index == -1 {
+		host = locstr
+		port = ""
+	} else {
+		host, port = locstr[:index], locstr[index+len(":"):]
+	}
+	return
+}
+
 func convert_uri(uri string) string {
-	scheme, locstr, path := loc_str(uri)
+	scheme, _, path := loc_str(uri)
+	// TODO make the conversion smarter! Do not convert if this is the localhost
+	// or the hostname matches our hostname.
+	// TODO add the dir scheme
 	if scheme == "disco" {
 		return "http://" + Setting("DISCO_MASTER") + ":" + Setting("DISCO_PORT") +
 			"/" + path
 	}
-	return locstr
+	return uri
 }
 
 func AddressReader(address string, dataDir string) io.ReadCloser {
-	scheme := strings.Split(address, "://")[0]
+	scheme, _ := scheme_split(address)
+
 	switch scheme {
 	case "http":
 		fallthrough
