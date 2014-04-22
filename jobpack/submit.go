@@ -43,7 +43,7 @@ func submit_job(master string) io.ReadCloser {
 }
 
 func Post() {
-	master = "http://" + jobutil.Setting("DISCO_MASTER") + ":" + jobutil.Setting("DISCO_PORT")
+	master := "http://" + jobutil.Setting("DISCO_MASTER") + ":" + jobutil.Setting("DISCO_PORT")
 	response := submit_job(master)
 	defer response.Close()
 	body, err := ioutil.ReadAll(response)

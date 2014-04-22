@@ -154,7 +154,7 @@ func Decode() {
 	Check(err)
 }
 
-func CreateJobPack() {
+func CreateJobPack(inputs []string) {
 	var jp JobPack
 	jp.Init()
 	host, err := os.Hostname()
@@ -174,7 +174,7 @@ func CreateJobPack() {
 	jp.AddToJobDict("nr_reduces", 1)
 	jp.AddToJobDict("save_results", false)
 
-	jp.AddToJobDict("input", jobInputs)
+	jp.AddToJobDict("input", inputs)
 	jp.AddToJobDict("map?", true)
 
 	jp.AddToJobEnv("en", "v")
