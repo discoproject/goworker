@@ -28,6 +28,9 @@ func SetKeyValue(key string, value string) {
 
 // TODO handle more complicated cases like when the value contains =.
 func addLine(line string) {
+	if line == "" {
+		return
+	}
 	if strings.Trim(line, " \t")[0] == '#' {
 		return
 	}
