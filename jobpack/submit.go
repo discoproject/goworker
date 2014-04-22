@@ -3,9 +3,11 @@ package main
 import (
 	"bufio"
 	"bytes"
-	"disco/jobutil"
 	"encoding/json"
 	"fmt"
+
+	"github.com/dinedal/goworker/jobutil"
+
 	"io"
 	"io/ioutil"
 	"log"

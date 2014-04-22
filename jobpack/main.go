@@ -1,8 +1,10 @@
 package main
 
 import (
-	"disco/jobutil"
 	"fmt"
+
+	"github.com/dinedal/goworker/jobutil"
+
 	"os"
 )
 

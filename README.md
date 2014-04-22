@@ -4,16 +4,17 @@ Go Worker for Disco
 This is an implementation of [Disco worker protocol](http://disco.readthedocs.org/en/latest/howto/worker.html) in golang.
 See [discoproject.org] (http://discoproject.org) for more information.
 
-To use this worker set the GOPATH to point to the root directory of this repo and then:
+To use this worker install the three libraries via `go get`
 
 ```
-$ go install disco/jobpack
+$ go get github.com/dinedal/goworker/jobutil
+$ go get github.com/dinedal/goworker/jobpack
+$ go get github.com/dinedal/goworker/worker
 ```
 
-creates a basic utility for creation and submission of jobpacks.  It can be used as
-
+Then, use the `jobpack` command to run workers. An example:
 ```
-$ ./bin/jobpack localhost  src/disco/examples/ /etc/disco/settings.py http://discoproject.org/media/text/chekhov.txt
+$ jobpack localhost:8989  $GOPATH/github.com/dinedal/goworker/examples/ http://discoproject.org/media/text/chekhov.txt
 ```
 
 To submit a job to Disco master.
