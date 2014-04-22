@@ -55,13 +55,14 @@ type Header struct {
 	_             [27]uint32
 }
 
-func compile(workerDir string) string {
+func compile(worker string) string {
 	pwd, err := os.Getwd()
 	Check(err)
+    var workerDir string
 
-	if strings.HasSuffix(workerDir, ".go") {
+	if strings.HasSuffix(worker, ".go") {
 		var file string
-		workerDir, file = filepath.Split(workerDir)
+		workerDir, file = filepath.Split(worker)
 		if workerDir != "" {
 			err = os.Chdir(workerDir)
 			Check(err)
@@ -69,6 +70,7 @@ func compile(workerDir string) string {
 		_, err := exec.Command("go", "build", "-o", "worker", file).Output()
 		Check(err)
 	} else {
+        workerDir = worker
 		err = os.Chdir(workerDir)
 		Check(err)
 		_, err := exec.Command("go", "build", "-o", "worker").Output()
@@ -164,7 +166,7 @@ func Decode() {
 	Check(err)
 }
 
-func CreateJobPack(inputs []string, workerDir string) {
+func CreateJobPack(inputs []string, worker string) {
 	var jp JobPack
 	jp.Init()
 	host, err := os.Hostname()
@@ -188,7 +190,7 @@ func CreateJobPack(inputs []string, workerDir string) {
 	jp.AddToJobDict("map?", true)
 
 	jp.AddToJobEnv("en", "v")
-	workerExe := compile(workerDir)
+	workerExe := compile(worker)
 	zipFileName := zipit(workerExe)
 	Encode(jp.jobdict, jp.jobenv, zipFileName)
 }

@@ -30,7 +30,7 @@ func main() {
 	var master string
 	var confFile string
 	var inputs Inputs
-	var workerDir string
+	var worker string
 
 	const (
 		defaultMaster = "localhost"
@@ -40,7 +40,7 @@ func main() {
 
 		// TODO also accept a single go file or an executable.
 		defaultWorker = ""
-		workerUsage   = "The worker directory"
+		workerUsage   = "The worker directory or a .go file"
 
 		defaultInputs = ""
 		inputUsage    = "The comma separated list of inputs to the job."
@@ -49,15 +49,15 @@ func main() {
 	flag.StringVar(&master, "M", defaultMaster, masterUsage)
 	flag.StringVar(&confFile, "Conf", defaultConf, confUsage)
 	flag.StringVar(&confFile, "C", defaultConf, confUsage)
-	flag.StringVar(&workerDir, "Worker", defaultWorker, workerUsage)
-	flag.StringVar(&workerDir, "W", defaultWorker, workerUsage)
+	flag.StringVar(&worker, "Worker", defaultWorker, workerUsage)
+	flag.StringVar(&worker, "W", defaultWorker, workerUsage)
 
 	flag.Var(&inputs, "Inputs", inputUsage)
 	flag.Var(&inputs, "I", inputUsage)
 
 	flag.Parse()
 
-	if workerDir == "" || len(inputs) == 0 {
+	if worker == "" || len(inputs) == 0 {
 		fmt.Println("Usage: jobpack -W worker_dir -I input(s)")
 		os.Exit(1)
 	}
@@ -65,7 +65,7 @@ func main() {
 	jobutil.AddFile(confFile)
 	jobutil.SetKeyValue("DISCO_MASTER", master)
 
-	CreateJobPack(inputs, workerDir)
+	CreateJobPack(inputs, worker)
 	Post()
 	Cleanup()
 }
