@@ -55,3 +55,28 @@ func TestHostPort(t *testing.T) {
 		t.Error("wrong port", port)
 	}
 }
+
+func TestTagUrl(t *testing.T) {
+	SetKeyValue("DISCO_MASTER", "localhost")
+	SetKeyValue("DISCO_PORT", "8989")
+	url := tag_url("hello")
+	if url != "http://localhost:8989/ddfs/tag/hello" {
+		t.Error("url not correct", url)
+	}
+}
+
+func TestTagInfo(t *testing.T) {
+	input := []byte(`{
+               "version":1,
+               "id":"train$574-8412a-18265",
+               "last-modified":"2014/04/03 12:02:50",
+               "urls":[["disco://localhost/ddfs/vol0/blob/2b/train-0$574-8412a-e2ff"]],
+               "user-data":{}
+               }`)
+
+	_, _, urls := tag_info(input)
+	if urls[0] != "disco://localhost/ddfs/vol0/blob/2b/train-0$574-8412a-e2ff" {
+		t.Error("error decoding. ", urls)
+	}
+
+}

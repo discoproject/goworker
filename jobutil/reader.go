@@ -2,8 +2,10 @@ package jobutil
 
 import (
 	"bufio"
+	"encoding/json"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -148,6 +150,40 @@ func convert_uri(uri string) string {
 			"/disco/" + locstr + "/" + path
 	}
 	return uri
+}
+
+func tag_url(tag string) string {
+	return "http://" + Setting("DISCO_MASTER") + ":" + Setting("DISCO_PORT") +
+		"/ddfs/tag/" + tag
+}
+
+func tag_info(str []byte) (int, string, []string) {
+	type TagInfo struct {
+		Version       int
+		Id            string
+		Last_Modified string
+		Urls          [][]string
+		UserData      map[string]string
+	}
+	var tagInfo TagInfo
+	err := json.Unmarshal(str, &tagInfo)
+	Check(err)
+	//TODO use all of the urls
+	return tagInfo.Version, tagInfo.Id, tagInfo.Urls[0]
+}
+
+func GetUrls(tag string) []string {
+	url := tag_url(tag)
+	resp, err := http.Get(url)
+	Check(err)
+	if resp.StatusCode != http.StatusOK {
+		log.Fatal("bad response: ", resp.Status)
+	}
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	Check(err)
+	_, _, urls := tag_info(body)
+	return urls
 }
 
 func AddressReader(address string, dataDir string) io.ReadCloser {
