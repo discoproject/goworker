@@ -3,7 +3,6 @@ package jobutil
 import (
 	"bytes"
 	"encoding/json"
-	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -49,13 +48,13 @@ func decode_response(input []byte) (status string, results []string) {
 	return
 }
 
-func get_results(c chan []string, errChan chan error, url string, reader io.Reader) {
-	resp, err := http.Post(url, "application/json", reader)
+func get_results(c chan []string, errChan chan error, url string, reqBody []byte) {
+	resp, err := http.Post(url, "application/json", bytes.NewReader(reqBody))
 	defer resp.Body.Close()
 	// TODO only retry on certain errors
 	if err != nil || resp.StatusCode != http.StatusOK {
 		time.Sleep(time.Duration(POLL_INTERVAL) * time.Millisecond)
-		get_results(c, errChan, url, reader)
+		get_results(c, errChan, url, reqBody)
 	}
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
@@ -64,7 +63,7 @@ func get_results(c chan []string, errChan chan error, url string, reader io.Read
 	status, inputs := decode_response(body)
 	if status == "active" {
 		time.Sleep(time.Duration(POLL_INTERVAL) * time.Millisecond)
-		get_results(c, errChan, url, reader)
+		get_results(c, errChan, url, reqBody)
 
 	} else if status == "ready" {
 		c <- inputs
@@ -83,7 +82,7 @@ func Wait(master string, jobname string, timeout time.Duration) ([]string, error
 	url := master + "/disco/ctrl/get_results"
 	c := make(chan []string)
 	errChan := make(chan error)
-	go get_results(c, errChan, url, bytes.NewReader(encoded))
+	go get_results(c, errChan, url, encoded)
 	select {
 	case <-time.After(timeout * time.Second):
 		return nil, new(TimeOut)
