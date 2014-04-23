@@ -59,7 +59,7 @@ type Header struct {
 func compile(worker string) string {
 	pwd, err := os.Getwd()
 	Check(err)
-    var workerDir string
+	var workerDir string
 
 	if strings.HasSuffix(worker, ".go") {
 		var file string
@@ -71,7 +71,7 @@ func compile(worker string) string {
 		_, err := exec.Command("go", "build", "-o", "worker", file).Output()
 		Check(err)
 	} else {
-        workerDir = worker
+		workerDir = worker
 		err = os.Chdir(workerDir)
 		Check(err)
 		_, err := exec.Command("go", "build", "-o", "worker").Output()
