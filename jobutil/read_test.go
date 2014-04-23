@@ -6,7 +6,7 @@ import (
 
 func TestScheme(t *testing.T) {
 	input := "disco://hello"
-	scheme, rest := scheme_split(input)
+	scheme, rest := SchemeSplit(input)
 	if scheme != "disco" {
 		t.Error("incorrect scheme", scheme)
 	}

@@ -109,7 +109,7 @@ func dir_reader(address string, dataDir string) io.ReadCloser {
 	return dr
 }
 
-func scheme_split(url string) (scheme, rest string) {
+func SchemeSplit(url string) (scheme, rest string) {
 	if index := strings.Index(url, "://"); index == -1 {
 		return "", url
 	} else {
@@ -118,7 +118,7 @@ func scheme_split(url string) (scheme, rest string) {
 }
 
 func loc_str(url string) (scheme, locstr, path string) {
-	scheme, rest := scheme_split(url)
+	scheme, rest := SchemeSplit(url)
 
 	if index := strings.Index(rest, "/"); index == -1 {
 		locstr = rest
@@ -188,7 +188,7 @@ func GetUrls(tag string) []string {
 
 func AddressReader(address string, dataDir string) io.ReadCloser {
 	address = convert_uri(address)
-	scheme, _ := scheme_split(address)
+	scheme, _ := SchemeSplit(address)
 
 	switch scheme {
 	case "http":
