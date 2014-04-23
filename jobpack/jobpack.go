@@ -4,6 +4,7 @@ import (
 	"archive/zip"
 	"encoding/binary"
 	"encoding/json"
+	"github.com/discoproject/goworker/jobutil"
 	"io"
 	"log"
 	"os"
@@ -166,6 +167,22 @@ func Decode() {
 	Check(err)
 }
 
+func getEffectiveInputs(inputs []string) []string {
+	effectiveInputs := make([]string, 0)
+
+	for _, input := range inputs {
+		if scheme, rest := jobutil.SchemeSplit(input); scheme == "tag" {
+			urls := jobutil.GetUrls(rest)
+			for _, url := range urls {
+				effectiveInputs = append(effectiveInputs, url)
+			}
+		} else {
+			effectiveInputs = append(effectiveInputs, input)
+		}
+	}
+	return effectiveInputs
+}
+
 func CreateJobPack(inputs []string, worker string) {
 	var jp JobPack
 	jp.Init()
@@ -186,7 +203,7 @@ func CreateJobPack(inputs []string, worker string) {
 	jp.AddToJobDict("nr_reduces", 1)
 	jp.AddToJobDict("save_results", false)
 
-	jp.AddToJobDict("input", inputs)
+	jp.AddToJobDict("input", getEffectiveInputs(inputs))
 	jp.AddToJobDict("map?", true)
 
 	jp.AddToJobEnv("en", "v")
