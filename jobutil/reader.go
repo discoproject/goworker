@@ -23,7 +23,11 @@ func http_reader(address string) io.ReadCloser {
 }
 
 func absolute_disco_path(address string, disco_data string) string {
-	return path.Join(disco_data, address[len("disco://"):])
+	return path.Join(disco_data, address[len("disco://localhost/disco"):])
+}
+
+func absolute_ddfs_path(address string) string {
+	return path.Join(Setting("DDFS_DATA"), address[len("disco://localhost/ddfs"):])
 }
 
 func absolute_dir_path(address string, disco_data string) string {
@@ -42,9 +46,24 @@ func (dr *DiscoReader) Close() error {
 	return dr.file.Close()
 }
 
+func getHostAndType(discoAddress string) (string, string) {
+	_, rest := SchemeSplit(discoAddress)
+	list := strings.Split(rest, "/")
+	if len(list) < 2 {
+		log.Fatal("disco path too short", list)
+	}
+	return list[0], list[1]
+}
+
 func disco_reader(address string, dataDir string) io.ReadCloser {
 	dr := new(DiscoReader)
-	path := absolute_disco_path(address, dataDir)
+	var path string
+	_, input_type := getHostAndType(address)
+	if input_type == "disco" {
+		path = absolute_disco_path(address, dataDir)
+	} else {
+		path = absolute_ddfs_path(address)
+	}
 	file, err := os.Open(path)
 	Check(err)
 	dr.file = file
@@ -142,12 +161,16 @@ func HostAndPort(url string) (host, port string) {
 
 func convert_uri(uri string) string {
 	scheme, locstr, path := loc_str(uri)
-	// TODO make the conversion smarter! Do not convert if this is the localhost
-	// or the hostname matches our hostname.
 	// TODO add the dir scheme
 	if scheme == "disco" {
-		return "http://" + locstr + ":" + Setting("DISCO_PORT") +
-			"/disco/" + locstr + "/" + path
+		host, inputType := getHostAndType(uri)
+		if host != Setting("HOST") {
+			if inputType == "disco" {
+				return "http://" + locstr + ":" + Setting("DISCO_PORT") + "/" + path
+			} else {
+				//TODO
+			}
+		}
 	}
 	return uri
 }

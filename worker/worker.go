@@ -177,7 +177,8 @@ func (w *Worker) runStage(output_name string, process Process) {
 	process(readCloser, output)
 	readCloser.Close()
 	output.Close()
-	w.output.output_location = "disco://" + output_name[len(w.task.Disco_data)+1:]
+	w.output.output_location =
+		"disco://" + jobutil.Setting("HOST") + "/disco/" + output_name[len(w.task.Disco_data)+1:]
 	output, err = os.Open(output_name)
 	Check(err)
 	fileinfo, err := output.Stat()
