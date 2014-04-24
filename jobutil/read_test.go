@@ -78,5 +78,13 @@ func TestTagInfo(t *testing.T) {
 	if urls[0] != "disco://localhost/ddfs/vol0/blob/2b/train-0$574-8412a-e2ff" {
 		t.Error("error decoding. ", urls)
 	}
+}
 
+func TestConvertDdfs(t *testing.T) {
+	input := "disco://localhost/ddfs/vol0/blob/2b/train-0$574-8412a-e2ff"
+	SetKeyValue("DDFS_DATA", "/disco/ddfs/")
+	path := absolute_ddfs_path(input)
+	if path != "/disco/ddfs/vol0/blob/2b/train-0$574-8412a-e2ff" {
+		t.Error("path not correct", path)
+	}
 }
