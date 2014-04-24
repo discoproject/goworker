@@ -9,3 +9,7 @@ install:
   - go get github.com/discoproject/goworker/jobpack
   - go get github.com/discoproject/goworker/worker
   - go get github.com/discoproject/goworker/jobutil
+
+script:
+  - go test ./...
+  - go vet ./...
