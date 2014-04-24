@@ -86,7 +86,6 @@ func Wait(master string, jobname string, timeout time.Duration) ([]string, error
 	select {
 	case <-time.After(timeout * time.Second):
 		return nil, new(TimeOut)
-		panic("not finished yet")
 	case outputs := <-c:
 		return outputs, nil
 	case err := <-errChan:
