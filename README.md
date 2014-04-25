@@ -8,9 +8,9 @@ There is a sample worker in the examples directory.  In order to run this worker
 
 ```
 $ go get github.com/discoproject/goworker/jobpack
-$ go install github.com/discoproject/goworker/jobpack
-$ $GOPATH/jobpack -W count_words.go -I http://discoproject.org/media/text/chekhov.txt
+$ $GOPATH/bin/jobpack -W $GOPATH/src/github.com/discoproject/goworker/examples/count_words.go -I http://discoproject.org/media/text/chekhov.txt
 ```
+
 Warning: This is a work in progress and it is not ready for production use.
 
 This implementation requires golang v1.1 or later.
