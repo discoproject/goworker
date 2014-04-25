@@ -163,13 +163,9 @@ func convert_uri(uri string) string {
 	scheme, locstr, path := loc_str(uri)
 	// TODO add the dir scheme
 	if scheme == "disco" {
-		host, inputType := getHostAndType(uri)
+		host, _ := getHostAndType(uri)
 		if host != Setting("HOST") {
-			if inputType == "disco" {
-				return "http://" + locstr + ":" + Setting("DISCO_PORT") + "/" + path
-			} else {
-				//TODO
-			}
+			return "http://" + locstr + ":" + Setting("DISCO_PORT") + "/" + path
 		}
 	}
 	return uri

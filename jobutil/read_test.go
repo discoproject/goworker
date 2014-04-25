@@ -88,3 +88,12 @@ func TestConvertDdfs(t *testing.T) {
 		t.Error("path not correct", path)
 	}
 }
+
+func TestConvertDdfsRemote(t *testing.T) {
+	input := "disco://otherhost/ddfs/vol0/blob/f3/input-0$573-4ed4b-a9b1b"
+	SetKeyValue("DDFS_DATA", "/disco/ddfs/")
+	path := convert_uri(input)
+	if path != "http://otherhost:8989/ddfs/vol0/blob/f3/input-0$573-4ed4b-a9b1b" {
+		t.Error("path not correct", path)
+	}
+}
