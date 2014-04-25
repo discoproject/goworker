@@ -3,9 +3,8 @@ package main
 import (
 	"bufio"
 	"fmt"
-
+	"github.com/discoproject/goworker/jobutil"
 	"github.com/discoproject/goworker/worker"
-
 	"io"
 	"io/ioutil"
 	"log"
@@ -31,7 +30,7 @@ func Map(reader io.Reader, writer io.Writer) {
 
 func Reduce(reader io.Reader, writer io.Writer) {
 	//TODO sort data only if necessary
-	sreader := worker.Sorted(reader)
+	sreader := jobutil.Sorted(reader)
 	defer sreader.Close()
 	scanner := bufio.NewScanner(sreader)
 
