@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/discoproject/goworker/jobutil"
 	"io"
+	"io/ioutil"
 	"log"
 	"os"
 )
@@ -169,8 +170,9 @@ type Worker struct {
 
 type Process func(io.Reader, io.Writer)
 
-func (w *Worker) runStage(output_name string, process Process) {
-	output, err := os.Create(output_name)
+func (w *Worker) runStage(pwd string, prefix string, process Process) {
+	output, err := ioutil.TempFile(pwd, prefix)
+	output_name := output.Name()
 	Check(err)
 	readCloser := jobutil.AddressReader(w.input.replica_location,
 		jobutil.Setting("DISCO_DATA"))
@@ -209,11 +211,11 @@ func Run(Map Process, Reduce Process) {
 
 	w.output = new(Output)
 	if w.task.Stage == "map" {
-		w.runStage(pwd+"/map_out", Map)
+		w.runStage(pwd, "map_out_", Map)
 	} else if w.task.Stage == "map_shuffle" {
 		w.output.output_location = w.input.replica_location
 	} else {
-		w.runStage(pwd+"/reduce_out", Reduce)
+		w.runStage(pwd, "reduce_out_", Reduce)
 	}
 
 	send_output(w.output)
