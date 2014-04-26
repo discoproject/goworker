@@ -50,9 +50,13 @@ func decode_response(input []byte) (status string, results []string) {
 
 func get_results(c chan []string, errChan chan error, url string, reqBody []byte) {
 	resp, err := http.Post(url, "application/json", bytes.NewReader(reqBody))
-	defer resp.Body.Close()
 	// TODO only retry on certain errors
-	if err != nil || resp.StatusCode != http.StatusOK {
+	if err != nil {
+		time.Sleep(time.Duration(POLL_INTERVAL) * time.Millisecond)
+		get_results(c, errChan, url, reqBody)
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
 		time.Sleep(time.Duration(POLL_INTERVAL) * time.Millisecond)
 		get_results(c, errChan, url, reqBody)
 	}
