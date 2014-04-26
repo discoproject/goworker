@@ -1,6 +1,8 @@
 package jobutil
 
 import (
+	"bufio"
+	//"fmt"
 	"io"
 	"log"
 	"os"
@@ -32,4 +34,48 @@ func Sorted(input io.Reader) io.ReadCloser {
 	file, err := os.Open(name)
 	Check(err)
 	return file
+}
+
+type Group interface {
+	Read() (string, int, error)
+}
+
+type group struct {
+	scanner *bufio.Scanner
+	current string
+}
+
+func (g *group) Read() (string, int, error) {
+	count := 1
+	var line string
+	prev := g.current
+	for g.scanner.Scan() {
+		line = g.scanner.Text()
+		if prev == "" {
+			prev = line
+			continue
+		}
+		if line == prev {
+			count++
+		} else {
+			g.current = line
+			return prev, count, nil
+		}
+	}
+	if g.current != "" {
+		line = g.current
+		g.current = ""
+		return line, count, nil
+	}
+
+	if err := g.scanner.Err(); err != nil {
+		log.Fatal(err)
+	}
+	return "", 0, io.EOF
+}
+
+func Grouper(input io.Reader) Group {
+	g := new(group)
+	g.scanner = bufio.NewScanner(input)
+	return g
 }

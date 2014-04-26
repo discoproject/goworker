@@ -1,64 +1,39 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
 	"github.com/discoproject/goworker/jobutil"
 	"github.com/discoproject/goworker/worker"
 	"io"
 	"io/ioutil"
-	"log"
 	"strings"
 )
 
-func Check(err error) {
-	if err != nil {
-		log.Fatal(err)
-	}
-}
-
 func Map(reader io.Reader, writer io.Writer) {
 	body, err := ioutil.ReadAll(reader)
-	Check(err)
+	jobutil.Check(err)
 	strBody := string(body)
 	words := strings.Fields(strBody)
 	for _, word := range words {
 		_, err := writer.Write([]byte(word + "\n"))
-		Check(err)
+		jobutil.Check(err)
 	}
 }
 
 func Reduce(reader io.Reader, writer io.Writer) {
-	//TODO sort data only if necessary
 	sreader := jobutil.Sorted(reader)
-	defer sreader.Close()
-	scanner := bufio.NewScanner(sreader)
+	grouper := jobutil.Grouper(sreader)
 
-	count := 1
-	var prev, line string
-	for scanner.Scan() {
-		line = scanner.Text()
-		if prev == "" {
-			prev = line
-			continue
-		}
-		if line == prev {
-			count++
-		} else {
-			str := fmt.Sprintf("%d %s\n", count, prev)
-			_, err := writer.Write([]byte(str))
-			Check(err)
-			prev = line
-			count = 1
-		}
+    var err error = nil
+	for err == nil {
+        word, count, err := grouper.Read()
+        if err != nil {
+            break
+        }
+		_, err = writer.Write([]byte(fmt.Sprintf("%d %s\n", count, word)))
+		jobutil.Check(err)
 	}
-	str := fmt.Sprintf("%d %s\n", count, line)
-	_, err := writer.Write([]byte(str))
-	Check(err)
-
-	if err := scanner.Err(); err != nil {
-		log.Fatal(err)
-	}
+	sreader.Close()
 }
 
 func main() {

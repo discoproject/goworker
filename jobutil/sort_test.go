@@ -3,6 +3,7 @@ package jobutil
 import (
 	"bufio"
 	"strings"
+    "fmt"
 	"testing"
 )
 
@@ -61,5 +62,65 @@ func assert_read(scanner *bufio.Scanner, List []string, t *testing.T) {
 	}
 	if err := scanner.Err(); err != nil {
 		t.Error("err in input")
+	}
+}
+
+func TestGrouper(t *testing.T) {
+	const input = "a\na\nb\nb"
+	reader := strings.NewReader(input)
+	g := Grouper(reader)
+	word, count, err := g.Read()
+	if word != "a" {
+		t.Error("wrong word", word)
+	}
+	if count != 2 {
+		t.Error("wrong count", count)
+	}
+	if err != nil {
+		t.Error("error in read", err)
+	}
+
+	word, count, err = g.Read()
+	if word != "b" {
+		t.Error("wrong word", word)
+	}
+	if count != 2 {
+		t.Error("wrong count", count)
+	}
+	if err != nil {
+		t.Error("error in read", err)
+	}
+
+	word, count, err = g.Read()
+	if err == nil {
+		t.Error("should have erred")
+	}
+}
+
+func TestGrouperEmptyReader(t *testing.T) {
+	const input = ""
+	reader := strings.NewReader(input)
+	g := Grouper(reader)
+	_, _, err := g.Read()
+	if err == nil {
+		t.Error("should have erred")
+	}
+}
+
+func TestGroupLoop(t *testing.T) {
+	const input = "a\na\nb\nb"
+	reader := strings.NewReader(input)
+	g := Grouper(reader)
+
+	var err error = nil
+	for err == nil {
+		_, count, err := g.Read()
+		fmt.Println("here")
+		if err != nil {
+			break
+		}
+		if count != 2 {
+			t.Error("wrong count")
+		}
 	}
 }
