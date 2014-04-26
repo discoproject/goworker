@@ -174,7 +174,8 @@ func getEffectiveInputs(inputs []string) []string {
 		if scheme, rest := jobutil.SchemeSplit(input); scheme == "tag" {
 			urls := jobutil.GetUrls(rest)
 			for _, url := range urls {
-				effectiveInputs = append(effectiveInputs, url)
+				// TODO we are using only the first replica here
+				effectiveInputs = append(effectiveInputs, url[0])
 			}
 		} else {
 			effectiveInputs = append(effectiveInputs, input)

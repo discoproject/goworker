@@ -176,7 +176,7 @@ func tag_url(tag string) string {
 		"/ddfs/tag/" + tag
 }
 
-func tag_info(str []byte) (int, string, []string) {
+func tag_info(str []byte) (int, string, [][]string) {
 	type TagInfo struct {
 		Version       int
 		Id            string
@@ -187,11 +187,10 @@ func tag_info(str []byte) (int, string, []string) {
 	var tagInfo TagInfo
 	err := json.Unmarshal(str, &tagInfo)
 	Check(err)
-	//TODO use all of the urls
-	return tagInfo.Version, tagInfo.Id, tagInfo.Urls[0]
+	return tagInfo.Version, tagInfo.Id, tagInfo.Urls
 }
 
-func GetUrls(tag string) []string {
+func GetUrls(tag string) [][]string {
 	url := tag_url(tag)
 	resp, err := http.Get(url)
 	Check(err)

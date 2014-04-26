@@ -75,7 +75,7 @@ func TestTagInfo(t *testing.T) {
                }`)
 
 	_, _, urls := tag_info(input)
-	if urls[0] != "disco://localhost/ddfs/vol0/blob/2b/train-0$574-8412a-e2ff" {
+	if urls[0][0] != "disco://localhost/ddfs/vol0/blob/2b/train-0$574-8412a-e2ff" {
 		t.Error("error decoding. ", urls)
 	}
 }
