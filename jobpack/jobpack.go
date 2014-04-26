@@ -4,7 +4,9 @@ import (
 	"archive/zip"
 	"encoding/binary"
 	"encoding/json"
+
 	"github.com/discoproject/goworker/jobutil"
+
 	"io"
 	"log"
 	"os"
@@ -61,25 +63,35 @@ func compile(worker string) string {
 	Check(err)
 	var workerDir string
 
-	if strings.HasSuffix(worker, ".go") {
+	exeFile := "worker"
+
+	// Check if we have access to file or path, and it exists
+	var fileStat os.FileInfo
+	fileStat, err = os.Stat(worker)
+	Check(err)
+
+	if fileStat.IsDir() {
+		workerDir = worker
+		err = os.Chdir(workerDir)
+		Check(err)
+		_, err := exec.Command("go", "build", "-o", exeFile).Output()
+		Check(err)
+	} else if strings.HasSuffix(worker, ".go") {
 		var file string
 		workerDir, file = filepath.Split(worker)
 		if workerDir != "" {
 			err = os.Chdir(workerDir)
 			Check(err)
 		}
-		_, err := exec.Command("go", "build", "-o", "worker", file).Output()
+		_, err := exec.Command("go", "build", "-o", exeFile, file).Output()
 		Check(err)
 	} else {
-		workerDir = worker
-		err = os.Chdir(workerDir)
-		Check(err)
-		_, err := exec.Command("go", "build", "-o", "worker").Output()
-		Check(err)
+		// Is a file, is not a directory, fall back to executable
+		exeFile = worker
 	}
 	err = os.Chdir(pwd)
 	Check(err)
-	return filepath.Join(workerDir, "worker")
+	return filepath.Join(workerDir, exeFile)
 }
 
 func zipit(workerExe string) string {
