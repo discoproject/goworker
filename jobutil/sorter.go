@@ -37,15 +37,24 @@ func Sorted(input io.Reader) io.ReadCloser {
 }
 
 type Group interface {
-	Read() (string, int, error)
+	Scan() bool
+	Text() (string, int)
+	Err() error
 }
 
 type group struct {
 	scanner *bufio.Scanner
+	line    string
+	count   int
 	current string
+	err     error
 }
 
-func (g *group) Read() (string, int, error) {
+func (g *group) init(input io.Reader) {
+	g.scanner = bufio.NewScanner(input)
+}
+
+func (g *group) Scan() bool {
 	count := 1
 	var line string
 	prev := g.current
@@ -59,23 +68,33 @@ func (g *group) Read() (string, int, error) {
 			count++
 		} else {
 			g.current = line
-			return prev, count, nil
+			g.line = prev
+			g.count = count
+			return true
 		}
 	}
 	if g.current != "" {
 		line = g.current
 		g.current = ""
-		return line, count, nil
+		g.line = line
+		g.count = count
+		return true
 	}
 
-	if err := g.scanner.Err(); err != nil {
-		log.Fatal(err)
-	}
-	return "", 0, io.EOF
+	g.err = g.scanner.Err()
+	return false
+}
+
+func (g *group) Text() (string, int) {
+	return g.line, g.count
+}
+
+func (g *group) Err() error {
+	return g.err
 }
 
 func Grouper(input io.Reader) Group {
 	g := new(group)
-	g.scanner = bufio.NewScanner(input)
+	g.init(input)
 	return g
 }
