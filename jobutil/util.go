@@ -3,6 +3,7 @@ package jobutil
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -74,13 +75,6 @@ func get_results(c chan []string, errChan chan error, url string, reqBody []byte
 	}
 }
 
-type TimeOut struct {
-}
-
-func (t *TimeOut) Error() string {
-	return "time out"
-}
-
 func Wait(master string, jobname string, timeout time.Duration) ([]string, error) {
 	encoded := encode(jobname)
 	url := master + "/disco/ctrl/get_results"
@@ -89,7 +83,7 @@ func Wait(master string, jobname string, timeout time.Duration) ([]string, error
 	go get_results(c, errChan, url, encoded)
 	select {
 	case <-time.After(timeout * time.Second):
-		return nil, new(TimeOut)
+		return nil, errors.New("time out")
 	case outputs := <-c:
 		return outputs, nil
 	case err := <-errChan:
