@@ -37,11 +37,8 @@ func main() {
 		masterUsage   = "The master node."
 		defaultConf   = "/etc/disco/settings.py"
 		confUsage     = "The setting file which contains disco settings"
-
-		// TODO also accept a single go file or an executable.
 		defaultWorker = ""
-		workerUsage   = "The worker directory or a .go file"
-
+		workerUsage   = "The worker directory, a .go file, or an executable"
 		defaultInputs = ""
 		inputUsage    = "The comma separated list of inputs to the job."
 	)
