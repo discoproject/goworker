@@ -195,10 +195,10 @@ func GetUrls(tag string) []string {
 	url := tag_url(tag)
 	resp, err := http.Get(url)
 	Check(err)
+	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
 		log.Fatal("bad response: ", resp.Status)
 	}
-	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 	Check(err)
 	_, _, urls := tag_info(body)
