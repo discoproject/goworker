@@ -125,15 +125,17 @@ func process_input(jsonInput []byte) []*Input {
 	return result
 }
 
-func send_output(output *Output) {
-	v := make([]interface{}, 3)
-	v[0] = output.label
-	v[1] = output.output_location //"http://example.com"
-	v[2] = output.output_size
+func send_output(outputs []*Output) {
+	for _, output := range outputs {
+		v := make([]interface{}, 3)
+		v[0] = output.label
+		v[1] = output.output_location //"http://example.com"
+		v[2] = output.output_size
 
-	send("OUTPUT", v)
-	_, _, line := recv()
-	debug("info", string(line))
+		send("OUTPUT", v)
+		_, _, line := recv()
+		debug("info", string(line))
+	}
 }
 
 func request_done() {
@@ -238,6 +240,6 @@ func Run(Map Process, Reduce Process) {
 		w.runStage(pwd, "reduce_out_", Reduce)
 	}
 
-	send_output(w.outputs[0])
+	send_output(w.outputs)
 	request_done()
 }
