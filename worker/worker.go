@@ -4,7 +4,9 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
+
 	"github.com/discoproject/goworker/jobutil"
+
 	"io"
 	"io/ioutil"
 	"log"
@@ -74,7 +76,7 @@ func request_task() *Task {
 	return task
 }
 
-func request_input() *Input {
+func requestInputs() []*Input {
 	send("INPUT", "")
 	_, _, line := recv()
 	var mj []interface{}
@@ -82,38 +84,46 @@ func request_input() *Input {
 
 	flag := mj[0].(string)
 	if flag != "done" {
+		// TODO support multiple passes for inputs
 		panic(flag)
 	}
+
 	_inputs := mj[1].([]interface{})
-	inputs := _inputs[0].([]interface{})
+	result := make([]*Input, len(_inputs))
 
-	id := inputs[0].(float64)
-	status := inputs[1].(string)
+	for idx, rawInput := range _inputs {
+		inputTuple := rawInput.([]interface{})
+		id := inputTuple[0].(float64)
+		status := inputTuple[1].(string)
 
-	label := -1
-	switch t := inputs[2].(type) {
-	case string:
-		label = -1
-	case float64:
-		label = int(t)
+		label := -1
+		switch t := inputTuple[2].(type) {
+		case string:
+			label = -1
+		case float64:
+			label = int(t)
+		}
+		_replicas := inputTuple[3].([]interface{})
+
+		replicas := _replicas[0].([]interface{})
+
+		//FIXME avoid conversion to float when reading the item
+		replica_id := replicas[0].(float64)
+		replica_location := replicas[1].(string)
+
+		debug("info", fmt.Sprintln(id, status, label, replica_id, replica_location))
+
+		input := new(Input)
+		input.id = int(id)
+		input.status = status
+		input.label = label
+		input.replica_id = int(replica_id)
+		input.replica_location = replica_location
+
+		result[idx] = input
 	}
-	_replicas := inputs[3].([]interface{})
 
-	replicas := _replicas[0].([]interface{})
-
-	//FIXME avoid conversion to float when reading the item
-	replica_id := replicas[0].(float64)
-	replica_location := replicas[1].(string)
-
-	debug("info", fmt.Sprintln(id, status, label, replica_id, replica_location))
-
-	input := new(Input)
-	input.id = int(id)
-	input.status = status
-	input.label = label
-	input.replica_id = int(replica_id)
-	input.replica_location = replica_location
-	return input
+	return result
 }
 
 func send_output(output *Output) {
@@ -164,7 +174,7 @@ type Output struct {
 
 type Worker struct {
 	task   *Task
-	input  *Input
+	inputs []*Input
 	output *Output
 }
 
@@ -174,7 +184,7 @@ func (w *Worker) runStage(pwd string, prefix string, process Process) {
 	output, err := ioutil.TempFile(pwd, prefix)
 	output_name := output.Name()
 	Check(err)
-	readCloser := jobutil.AddressReader(w.input.replica_location,
+	readCloser := jobutil.AddressReader(w.inputs[0].replica_location,
 		jobutil.Setting("DISCO_DATA"))
 	process(readCloser, output)
 	readCloser.Close()
@@ -204,7 +214,7 @@ func Run(Map Process, Reduce Process) {
 	jobutil.SetKeyValue("DISCO_DATA", w.task.Disco_data)
 	jobutil.SetKeyValue("DDFS_DATA", w.task.Ddfs_data)
 
-	w.input = request_input()
+	w.inputs = requestInputs()
 
 	pwd, err := os.Getwd()
 	Check(err)
@@ -213,7 +223,7 @@ func Run(Map Process, Reduce Process) {
 	if w.task.Stage == "map" {
 		w.runStage(pwd, "map_out_", Map)
 	} else if w.task.Stage == "map_shuffle" {
-		w.output.output_location = w.input.replica_location
+		w.output.output_location = w.inputs[0].replica_location
 	} else {
 		w.runStage(pwd, "reduce_out_", Reduce)
 	}
