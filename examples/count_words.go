@@ -1,22 +1,27 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"github.com/discoproject/goworker/jobutil"
 	"github.com/discoproject/goworker/worker"
 	"io"
-	"io/ioutil"
+	"log"
 	"strings"
 )
 
 func Map(reader io.Reader, writer io.Writer) {
-	body, err := ioutil.ReadAll(reader)
-	jobutil.Check(err)
-	strBody := string(body)
-	words := strings.Fields(strBody)
-	for _, word := range words {
-		_, err := writer.Write([]byte(word + "\n"))
-		jobutil.Check(err)
+	scanner := bufio.NewScanner(reader)
+	for scanner.Scan() {
+		text := scanner.Text()
+		words := strings.Fields(text)
+		for _, word := range words {
+			_, err := writer.Write([]byte(word + "\n"))
+			jobutil.Check(err)
+		}
+	}
+	if err := scanner.Err(); err != nil {
+		log.Fatal("reading standard input:", err)
 	}
 }
 
