@@ -172,9 +172,9 @@ type Output struct {
 }
 
 type Worker struct {
-	task   *Task
-	inputs []*Input
-	output *Output
+	task    *Task
+	inputs  []*Input
+	outputs []*Output
 }
 
 type Process func(io.Reader, io.Writer)
@@ -183,6 +183,7 @@ func (w *Worker) runStage(pwd string, prefix string, process Process) {
 	output, err := ioutil.TempFile(pwd, prefix)
 	output_name := output.Name()
 	Check(err)
+	defer output.Close()
 	locations := make([]string, len(w.inputs))
 	for i, input := range w.inputs {
 		locations[i] = input.replica_location
@@ -191,14 +192,15 @@ func (w *Worker) runStage(pwd string, prefix string, process Process) {
 	readCloser := jobutil.AddressReader(locations, jobutil.Setting("DISCO_DATA"))
 	process(readCloser, output)
 	readCloser.Close()
-	output.Close()
-	w.output.output_location =
-		"disco://" + jobutil.Setting("HOST") + "/disco/" + output_name[len(w.task.Disco_data)+1:]
-	output, err = os.Open(output_name)
-	Check(err)
+
 	fileinfo, err := output.Stat()
 	Check(err)
-	w.output.output_size = fileinfo.Size()
+
+	w.outputs = make([]*Output, 1)
+	w.outputs[0] = new(Output)
+	w.outputs[0].output_location =
+		"disco://" + jobutil.Setting("HOST") + "/disco/" + output_name[len(w.task.Disco_data)+1:]
+	w.outputs[0].output_size = fileinfo.Size()
 }
 
 func Run(Map Process, Reduce Process) {
@@ -222,15 +224,20 @@ func Run(Map Process, Reduce Process) {
 	pwd, err := os.Getwd()
 	Check(err)
 
-	w.output = new(Output)
 	if w.task.Stage == "map" {
 		w.runStage(pwd, "map_out_", Map)
 	} else if w.task.Stage == "map_shuffle" {
-		w.output.output_location = w.inputs[0].replica_location
+		w.outputs = make([]*Output, len(w.inputs))
+		for i, input := range w.inputs {
+			w.outputs[i] = new(Output)
+			w.outputs[i].output_location = input.replica_location
+			w.outputs[i].label = input.label
+			w.outputs[i].output_size = 0 // TODO find a way to calculate the size
+		}
 	} else {
 		w.runStage(pwd, "reduce_out_", Reduce)
 	}
 
-	send_output(w.output)
+	send_output(w.outputs[0])
 	request_done()
 }
