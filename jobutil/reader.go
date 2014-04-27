@@ -204,21 +204,24 @@ func GetUrls(tag string) [][]string {
 	return urls
 }
 
-func AddressReader(address string, dataDir string) io.ReadCloser {
-	address = convert_uri(address)
-	scheme, _ := SchemeSplit(address)
+func AddressReader(addresses []string, dataDir string) io.ReadCloser {
+	rcs := new(ReadClosers)
+	for _, address := range addresses {
+		address = convert_uri(address)
+		scheme, _ := SchemeSplit(address)
 
-	switch scheme {
-	case "http":
-		fallthrough
-	case "https":
-		return http_reader(address)
-	case "disco":
-		return disco_reader(address, dataDir)
-	case "dir":
-		return dir_reader(address, dataDir)
-	default:
-		log.Fatal("Cannot read the input: ", scheme, " : ", address)
+		switch scheme {
+		case "http":
+			fallthrough
+		case "https":
+			rcs.add(http_reader(address))
+		case "disco":
+			rcs.add(disco_reader(address, dataDir))
+		case "dir":
+			rcs.add(dir_reader(address, dataDir))
+		default:
+			log.Fatal("Cannot read the input: ", scheme, " : ", address)
+		}
 	}
-	return nil
+	return rcs
 }

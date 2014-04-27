@@ -183,8 +183,12 @@ func (w *Worker) runStage(pwd string, prefix string, process Process) {
 	output, err := ioutil.TempFile(pwd, prefix)
 	output_name := output.Name()
 	Check(err)
-	readCloser := jobutil.AddressReader(w.inputs[0].replica_location,
-		jobutil.Setting("DISCO_DATA"))
+	locations := make([]string, len(w.inputs))
+	for i, input := range w.inputs {
+		locations[i] = input.replica_location
+	}
+
+	readCloser := jobutil.AddressReader(locations, jobutil.Setting("DISCO_DATA"))
 	process(readCloser, output)
 	readCloser.Close()
 	output.Close()

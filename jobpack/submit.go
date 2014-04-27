@@ -60,18 +60,15 @@ func Post() {
 func get_results(master string, jobname string) {
 	outputs, err := jobutil.Wait(master, jobname, 20)
 	Check(err)
-	for _, output := range outputs {
-		fmt.Println(output)
 
-		disco_root := jobutil.Setting("DISCO_ROOT")
-		readCloser := jobutil.AddressReader(output, disco_root+"/data")
-		defer readCloser.Close()
-		scanner := bufio.NewScanner(readCloser)
-		for scanner.Scan() {
-			fmt.Println(scanner.Text())
-		}
-		if err := scanner.Err(); err != nil {
-			log.Fatal(err)
-		}
+	disco_root := jobutil.Setting("DISCO_ROOT")
+	readCloser := jobutil.AddressReader(outputs, disco_root+"/data")
+	defer readCloser.Close()
+	scanner := bufio.NewScanner(readCloser)
+	for scanner.Scan() {
+		fmt.Println(scanner.Text())
+	}
+	if err := scanner.Err(); err != nil {
+		log.Fatal(err)
 	}
 }

@@ -1,6 +1,9 @@
 package jobutil
 
 import (
+	"bufio"
+	"io"
+	"strings"
 	"testing"
 )
 
@@ -95,5 +98,67 @@ func TestConvertDdfsRemote(t *testing.T) {
 	path := convert_uri(input)
 	if path != "http://otherhost:8989/ddfs/vol0/blob/f3/input-0$573-4ed4b-a9b1b" {
 		t.Error("path not correct", path)
+	}
+}
+
+type FakeReadCloser struct {
+	reader io.Reader
+}
+
+func (frc *FakeReadCloser) Read(p []byte) (int, error) {
+	return frc.reader.Read(p)
+}
+
+func (frc *FakeReadCloser) Close() error {
+	return nil
+}
+
+func TestMultiReaderSingle(t *testing.T) {
+	const inp1 = "aaa\n"
+	var frc FakeReadCloser
+	var rcs ReadClosers
+	frc.reader = strings.NewReader(inp1)
+	rcs.add(&frc)
+
+	reader := bufio.NewScanner(&rcs)
+	if !reader.Scan() {
+		t.Error("could not read")
+	}
+	if text := reader.Text(); text != "aaa" {
+		t.Error("wrong text: ", text)
+	}
+	if reader.Scan() {
+		t.Error("read passed end")
+	}
+}
+
+func TestMultiReader(t *testing.T) {
+	var rcs ReadClosers
+	const inp1 = "aaa\n"
+	var frc1 FakeReadCloser
+	frc1.reader = strings.NewReader(inp1)
+	rcs.add(&frc1)
+
+	var frc2 FakeReadCloser
+	const inp2 = "bbb\n"
+	frc2.reader = strings.NewReader(inp2)
+
+	rcs.add(&frc2)
+
+	reader := bufio.NewScanner(&rcs)
+	if !reader.Scan() {
+		t.Error("could not read first")
+	}
+	if text := reader.Text(); text != "aaa" {
+		t.Error("wrong text: ", text)
+	}
+	if !reader.Scan() {
+		t.Error("could not read second")
+	}
+	if text := reader.Text(); text != "bbb" {
+		t.Error("wrong text: ", text)
+	}
+	if reader.Scan() {
+		t.Error("read passed end")
 	}
 }
