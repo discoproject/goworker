@@ -74,8 +74,10 @@ func compile(worker string) string {
 		workerDir = worker
 		err = os.Chdir(workerDir)
 		Check(err)
-		_, err := exec.Command("go", "build", "-o", exeFile).Output()
-		Check(err)
+		buildMessages, err := exec.Command("go", "build", "-o", exeFile).CombinedOutput()
+		if err != nil {
+			log.Fatal(string(buildMessages))
+		}
 	} else if strings.HasSuffix(worker, ".go") {
 		var file string
 		workerDir, file = filepath.Split(worker)
@@ -83,8 +85,10 @@ func compile(worker string) string {
 			err = os.Chdir(workerDir)
 			Check(err)
 		}
-		_, err := exec.Command("go", "build", "-o", exeFile, file).Output()
-		Check(err)
+		buildMessages, err := exec.Command("go", "build", "-o", exeFile, file).CombinedOutput()
+		if err != nil {
+			log.Fatal(string(buildMessages))
+		}
 	} else {
 		// Is a file, is not a directory, fall back to executable
 		exeFile = worker
