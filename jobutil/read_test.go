@@ -86,6 +86,7 @@ func TestTagInfo(t *testing.T) {
 func TestConvertDdfs(t *testing.T) {
 	input := "disco://localhost/ddfs/vol0/blob/2b/train-0$574-8412a-e2ff"
 	SetKeyValue("DDFS_DATA", "/disco/ddfs/")
+	SetKeyValue("HOST", "localhost")
 	path := absolute_ddfs_path(input)
 	if path != "/disco/ddfs/vol0/blob/2b/train-0$574-8412a-e2ff" {
 		t.Error("path not correct", path)
@@ -100,6 +101,16 @@ func TestConvertDdfsRemote(t *testing.T) {
 		t.Error("path not correct", path)
 	}
 }
+
+func TestAbsolutePath(t *testing.T) {
+    input := "disco://dev02/disco/dev02/c4/gojob@576:9aa4a:ec8d/map_out_809247627"
+	SetKeyValue("HOST", "dev02")
+	path := absolute_disco_path(input, "/usr/local/var/disco/data/")
+	if path != "/usr/local/var/disco/data/dev02/c4/gojob@576:9aa4a:ec8d/map_out_809247627" {
+		t.Error("path not correct", path)
+	}
+}
+
 
 type FakeReadCloser struct {
 	reader io.Reader

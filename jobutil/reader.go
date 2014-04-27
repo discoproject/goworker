@@ -23,11 +23,11 @@ func http_reader(address string) io.ReadCloser {
 }
 
 func absolute_disco_path(address string, disco_data string) string {
-	return path.Join(disco_data, address[len("disco://localhost/disco"):])
+	return path.Join(disco_data, address[len("disco://"+Setting("HOST")+"/disco"):])
 }
 
 func absolute_ddfs_path(address string) string {
-	return path.Join(Setting("DDFS_DATA"), address[len("disco://localhost/ddfs"):])
+	return path.Join(Setting("DDFS_DATA"), address[len("disco://"+Setting("HOST")+"/ddfs"):])
 }
 
 func absolute_dir_path(address string, disco_data string) string {
