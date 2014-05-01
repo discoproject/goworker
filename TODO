@@ -1,9 +1,6 @@
 This is the todo list for the goworker project.  These are like the TODO notes
 inlined in the source code but more general:
 
-1. Add DDFS reader (ddfs write should just work).
-2. Let the job options be expressed in the worker (e.g. saveinfo).
-3. Test with more than one task for each stage
-4. Cleanup the way the inputs of a stage are sorted and maybe create a library for it.
-5. Add more examples
-6. Add the pipeline worker.
+* Let the job options be expressed in the worker (e.g. saveinfo).
+* Add more examples
+* Add the pipeline worker.
