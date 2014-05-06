@@ -39,7 +39,7 @@ func addLine(line string) {
 		panic("cannot process line: " + line)
 	}
 	key := strings.Trim(list[0], " \t\"")
-	value := strings.Trim(list[1], " \t\n\"")
+	value := strings.Trim(list[1], " \t\n\"'")
 	SetKeyValue(key, value)
 }
 

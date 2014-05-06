@@ -33,7 +33,7 @@ func main() {
 	var worker string
 
 	const (
-		defaultMaster = "localhost"
+		defaultMaster = ""
 		masterUsage   = "The master node."
 		defaultConf   = "/etc/disco/settings.py"
 		confUsage     = "The setting file which contains disco settings"
@@ -60,7 +60,9 @@ func main() {
 	}
 
 	jobutil.AddFile(confFile)
-	jobutil.SetKeyValue("DISCO_MASTER", master)
+	if master != "" {
+		jobutil.SetKeyValue("DISCO_MASTER_HOST", master)
+	}
 
 	CreateJobPack(inputs, worker)
 	Post()
