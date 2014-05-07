@@ -38,7 +38,7 @@ func TestLocStr(t *testing.T) {
 func TestConvertUri(t *testing.T) {
 	input := "disco://localhost/disco/localhost/05/Job@576:1c0fa:3033a/05/reduce"
 
-	SetKeyValue("DISCO_MASTER", "localhost")
+	SetKeyValue("DISCO_MASTER_HOST", "localhost")
 	SetKeyValue("DISCO_PORT", "8989")
 
 	output := convert_uri(input)
@@ -60,7 +60,7 @@ func TestHostPort(t *testing.T) {
 }
 
 func TestTagUrl(t *testing.T) {
-	SetKeyValue("DISCO_MASTER", "localhost")
+	SetKeyValue("DISCO_MASTER_HOST", "localhost")
 	SetKeyValue("DISCO_PORT", "8989")
 	url := tag_url("hello")
 	if url != "http://localhost:8989/ddfs/tag/hello" {
@@ -103,14 +103,13 @@ func TestConvertDdfsRemote(t *testing.T) {
 }
 
 func TestAbsolutePath(t *testing.T) {
-    input := "disco://dev02/disco/dev02/c4/gojob@576:9aa4a:ec8d/map_out_809247627"
+	input := "disco://dev02/disco/dev02/c4/gojob@576:9aa4a:ec8d/map_out_809247627"
 	SetKeyValue("HOST", "dev02")
 	path := absolute_disco_path(input, "/usr/local/var/disco/data/")
 	if path != "/usr/local/var/disco/data/dev02/c4/gojob@576:9aa4a:ec8d/map_out_809247627" {
 		t.Error("path not correct", path)
 	}
 }
-
 
 type FakeReadCloser struct {
 	reader io.Reader

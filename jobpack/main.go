@@ -63,8 +63,8 @@ func main() {
 	if master != "" {
 		jobutil.SetKeyValue("DISCO_MASTER_HOST", master)
 	} else if jobutil.Setting("DISCO_MASTER_HOST") == "" {
-        jobutil.SetKeyValue("DISCO_MASTER_HOST", defaultMaster)
-    }
+		jobutil.SetKeyValue("DISCO_MASTER_HOST", defaultMaster)
+	}
 
 	CreateJobPack(inputs, worker)
 	Post()
