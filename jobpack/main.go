@@ -42,8 +42,8 @@ func main() {
 		defaultInputs = ""
 		inputUsage    = "The comma separated list of inputs to the job."
 	)
-	flag.StringVar(&master, "Master", defaultMaster, masterUsage)
-	flag.StringVar(&master, "M", defaultMaster, masterUsage)
+	flag.StringVar(&master, "Master", "", masterUsage)
+	flag.StringVar(&master, "M", "", masterUsage)
 	flag.StringVar(&confFile, "Conf", defaultConf, confUsage)
 	flag.StringVar(&confFile, "C", defaultConf, confUsage)
 	flag.StringVar(&worker, "Worker", defaultWorker, workerUsage)
@@ -60,7 +60,11 @@ func main() {
 	}
 
 	jobutil.AddFile(confFile)
-	jobutil.SetKeyValue("DISCO_MASTER", master)
+	if master != "" {
+		jobutil.SetKeyValue("DISCO_MASTER_HOST", master)
+	} else if jobutil.Setting("DISCO_MASTER_HOST") == "" {
+		jobutil.SetKeyValue("DISCO_MASTER_HOST", defaultMaster)
+	}
 
 	CreateJobPack(inputs, worker)
 	Post()

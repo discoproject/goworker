@@ -212,7 +212,7 @@ func Run(Map Process, Reduce Process) {
 
 	jobutil.SetKeyValue("HOST", w.task.Host)
 	master, port := jobutil.HostAndPort(w.task.Master)
-	jobutil.SetKeyValue("DISCO_MASTER", master)
+	jobutil.SetKeyValue("DISCO_MASTER_HOST", master)
 	if port != fmt.Sprintf("%d", w.task.Disco_port) {
 		panic("port mismatch: " + port)
 	}

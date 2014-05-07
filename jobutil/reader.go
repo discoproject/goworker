@@ -172,7 +172,7 @@ func convert_uri(uri string) string {
 }
 
 func tag_url(tag string) string {
-	return "http://" + Setting("DISCO_MASTER") + ":" + Setting("DISCO_PORT") +
+	return "http://" + Setting("DISCO_MASTER_HOST") + ":" + Setting("DISCO_PORT") +
 		"/ddfs/tag/" + tag
 }
 
