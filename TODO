@@ -4,3 +4,6 @@ inlined in the source code but more general:
 * Let the job options be expressed in the worker (e.g. saveinfo).
 * Add more examples
 * Add the pipeline worker.
+* Implement handling of "more" inputs.  With the concurrent stages, Disco will sometimes send "more" to the
+  go worker and this means the worker has to keep querying for more inputs (this worker is currently broken
+  because of this issue).
