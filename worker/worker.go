@@ -9,6 +9,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"path/filepath"
 )
 
 const (
@@ -200,8 +201,11 @@ func (w *Worker) runStage(pwd string, prefix string, process Process) {
 
 	w.outputs = make([]*Output, 1)
 	w.outputs[0] = new(Output)
+
+	absDiscoPath, err := filepath.EvalSymlinks(w.task.Disco_data)
+	Check(err)
 	w.outputs[0].output_location =
-		"disco://" + jobutil.Setting("HOST") + "/disco/" + output_name[len(w.task.Disco_data)+1:]
+		"disco://" + jobutil.Setting("HOST") + "/disco/" + output_name[len(absDiscoPath)+1:]
 	w.outputs[0].output_size = fileinfo.Size()
 }
 

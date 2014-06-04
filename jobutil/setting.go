@@ -10,10 +10,10 @@ import (
 var localDict map[string]string
 
 func Setting(str string) string {
-	if val := os.Getenv(str); val != "" {
+	if val, ok := localDict[str]; ok {
 		return val
 	}
-	if val, ok := localDict[str]; ok {
+	if val := os.Getenv(str); val != "" {
 		return val
 	}
 	return ""
