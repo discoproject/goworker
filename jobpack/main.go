@@ -31,16 +31,19 @@ func main() {
 	var confFile string
 	var inputs Inputs
 	var worker string
+	var jobtype string
 
 	const (
-		defaultMaster = "localhost"
-		masterUsage   = "The master node."
-		defaultConf   = "/etc/disco/settings.py"
-		confUsage     = "The setting file which contains disco settings"
-		defaultWorker = ""
-		workerUsage   = "The worker directory, a .go file, or an executable"
-		defaultInputs = ""
-		inputUsage    = "The comma separated list of inputs to the job."
+		defaultMaster  = "localhost"
+		masterUsage    = "The master node."
+		defaultConf    = "/etc/disco/settings.py"
+		confUsage      = "The setting file which contains disco settings"
+		defaultWorker  = ""
+		workerUsage    = "The worker directory, a .go file, or an executable"
+		defaultInputs  = ""
+		inputUsage     = "The comma separated list of inputs to the job."
+		defaultJobType = "mapreduce"
+		jobTypeUsage   = "type of the job (mapreduce or pipeline)"
 	)
 	flag.StringVar(&master, "Master", "", masterUsage)
 	flag.StringVar(&master, "M", "", masterUsage)
@@ -51,6 +54,9 @@ func main() {
 
 	flag.Var(&inputs, "Inputs", inputUsage)
 	flag.Var(&inputs, "I", inputUsage)
+
+	flag.StringVar(&jobtype, "Type", defaultJobType, jobTypeUsage)
+	flag.StringVar(&jobtype, "T", defaultJobType, jobTypeUsage)
 
 	flag.Parse()
 
@@ -66,7 +72,7 @@ func main() {
 		jobutil.SetKeyValue("DISCO_MASTER_HOST", defaultMaster)
 	}
 
-	CreateJobPack(inputs, worker)
+	CreateJobPack(inputs, worker, jobtype)
 	Post()
 	Cleanup()
 }

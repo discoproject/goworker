@@ -200,7 +200,18 @@ func getEffectiveInputs(inputs []string) []string {
 	return effectiveInputs
 }
 
-func CreateJobPack(inputs []string, worker string) {
+func CreateJobPack(inputs []string, worker string, jobtype string) {
+	if jobtype == "mapreduce" {
+		createMapReduceJobPack(inputs, worker)
+	} else {
+		createPipelineJobPack(inputs, worker)
+	}
+}
+
+func createPipelineJobPack(inputs []string, worker string) {
+}
+
+func createMapReduceJobPack(inputs []string, worker string) {
 	var jp JobPack
 	jp.Init()
 	host, err := os.Hostname()
