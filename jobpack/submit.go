@@ -64,11 +64,20 @@ func get_results(master string, jobname string) {
 	disco_root := jobutil.Setting("DISCO_ROOT")
 	readCloser := jobutil.AddressReader(outputs, disco_root+"/data")
 	defer readCloser.Close()
-	scanner := bufio.NewScanner(readCloser)
-	for scanner.Scan() {
-		fmt.Println(scanner.Text())
+
+	reader := bufio.NewReader(readCloser)
+	err = nil
+	line := []byte("")
+	for err == nil {
+		thisRead, isPrefix, thisErr := reader.ReadLine()
+		err = thisErr
+		line = append(line, thisRead...)
+		if !isPrefix {
+			fmt.Println(string(line))
+			line = []byte("")
+		}
 	}
-	if err := scanner.Err(); err != nil {
+	if err != io.EOF {
 		log.Fatal(err)
 	}
 }
