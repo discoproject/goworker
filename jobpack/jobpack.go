@@ -19,7 +19,8 @@ import (
 const (
 	MAGIC       = 0xd5c0 << 16
 	MAGIC_MASK  = 0xffff << 16
-	VERSION     = 0x0001
+	VERSION_1   = 0x0001
+	VERSION_2   = 0x0001
 	HEADER_SIZE = 128
 )
 
@@ -125,7 +126,7 @@ func zipit(workerExe string) string {
 }
 
 func Encode(jobdict map[string]interface{}, jobenv map[string]interface{},
-	zipFileName string) {
+	zipFileName string, version uint32) {
 	job_dict, err := json.Marshal(jobdict)
 	Check(err)
 	job_dict_len := len(job_dict)
@@ -145,7 +146,7 @@ func Encode(jobdict map[string]interface{}, jobenv map[string]interface{},
 	jobHomeSize := int(fileinfo.Size())
 
 	var header Header
-	header.MV = uint32(MAGIC + VERSION)
+	header.MV = uint32(MAGIC + version)
 	header.JobDictOffset = uint32(HEADER_SIZE)
 	header.JobEnvOffset = uint32(HEADER_SIZE + job_dict_len)
 	header.JobHomeOffset = uint32(HEADER_SIZE + job_dict_len + job_env_len)
@@ -209,10 +210,35 @@ func CreateJobPack(inputs []string, worker string, jobtype string) {
 }
 
 func createPipelineJobPack(inputs []string, worker string) {
+	jp := createCommonJobPack(inputs)
+	// TODO
+	// pipeline is a list like [("map", split, false)]
+	zipAndEncodeJobPack(jp, worker, VERSION_2)
 }
 
 func createMapReduceJobPack(inputs []string, worker string) {
+	jp := createCommonJobPack(inputs)
+
+	jp.AddToJobDict("reduce?", true)
+	jp.AddToJobDict("map?", true)
+
+	zipAndEncodeJobPack(jp, worker, VERSION_1)
+}
+
+func zipAndEncodeJobPack(jp JobPack, worker string, version uint32) {
+	workerExe := compile(worker)
+	zipFileName := zipit(workerExe)
+	Encode(jp.jobdict, jp.jobenv, zipFileName, version)
+}
+
+/*
+    TODO: read the options from a file or get the from the argument list.
+    TODO: use env
+	jp.AddToJobEnv("en", "v")
+*/
+func createCommonJobPack(inputs []string) JobPack {
 	var jp JobPack
+
 	jp.Init()
 	host, err := os.Hostname()
 	Check(err)
@@ -224,20 +250,13 @@ func createMapReduceJobPack(inputs []string, worker string) {
 	jp.AddToJobDict("owner", user.Username+"@"+host)
 	// Send an empty scheduler
 	jp.AddToJobDict("scheduler", make(map[string]string))
-
-	jp.AddToJobDict("reduce?", true)
 	jp.AddToJobDict("save_info", "ddfs")
 	jp.AddToJobDict("worker", "./job")
 	jp.AddToJobDict("nr_reduces", 1)
 	jp.AddToJobDict("save_results", false)
 
 	jp.AddToJobDict("input", getEffectiveInputs(inputs))
-	jp.AddToJobDict("map?", true)
-
-	jp.AddToJobEnv("en", "v")
-	workerExe := compile(worker)
-	zipFileName := zipit(workerExe)
-	Encode(jp.jobdict, jp.jobenv, zipFileName)
+	return jp
 }
 
 func Cleanup() {
