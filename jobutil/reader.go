@@ -8,13 +8,23 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"path"
 	"strings"
 )
 
 func http_reader(address string) io.ReadCloser {
-	resp, err := http.Get(address)
+	var client *http.Client
+	proxy := Setting("DISCO_PROXY")
+	if proxy != "" {
+		proxyUrl, err := url.Parse(proxy)
+		Check(err)
+		client = &http.Client{Transport: &http.Transport{Proxy: http.ProxyURL(proxyUrl)}}
+	} else {
+		client = &http.Client{}
+	}
+	resp, err := client.Get(address)
 	Check(err)
 	if resp.StatusCode != http.StatusOK {
 		log.Fatal("bad response: ", resp.Status)

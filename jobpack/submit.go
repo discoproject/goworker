@@ -12,6 +12,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 )
 
@@ -31,8 +32,18 @@ func submit_job(master string) io.ReadCloser {
 		panic("could not read all")
 	}
 
-	url := master + "/disco/job/new"
-	resp, err := http.Post(url, "image/jpeg", bytes.NewReader(data))
+	discourl := master + "/disco/job/new"
+	var client *http.Client
+	
+	proxy := jobutil.Setting("DISCO_PROXY")
+	if proxy != "" {
+		proxyUrl, err := url.Parse(proxy)
+		Check(err)
+		client = &http.Client{Transport: &http.Transport{Proxy: http.ProxyURL(proxyUrl)}}
+	} else {
+		client = &http.Client{}
+	}
+	resp, err := client.Post(discourl, "image/jpeg", bytes.NewReader(data))
 	Check(err)
 
 	if resp.StatusCode != http.StatusOK {
@@ -60,7 +71,6 @@ func Post() {
 func get_results(master string, jobname string) {
 	outputs, err := jobutil.Wait(master, jobname, 20)
 	Check(err)
-
 	disco_root := jobutil.Setting("DISCO_ROOT")
 	readCloser := jobutil.AddressReader(outputs, disco_root+"/data")
 	defer readCloser.Close()
