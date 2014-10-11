@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"net/url"
 	"time"
 )
 
@@ -49,17 +50,27 @@ func decode_response(input []byte) (status string, results []string) {
 	return
 }
 
-func get_results(c chan []string, errChan chan error, url string, reqBody []byte) {
-	resp, err := http.Post(url, "application/json", bytes.NewReader(reqBody))
+func get_results(c chan []string, errChan chan error, myurl string, reqBody []byte) {
+	var client *http.Client
+	
+	proxy := Setting("DISCO_PROXY")
+	if proxy != "" {
+		proxyUrl, err := url.Parse(proxy)
+		Check(err)
+		client = &http.Client{Transport: &http.Transport{Proxy: http.ProxyURL(proxyUrl)}}
+	} else {
+		client = &http.Client{}
+	}
+	resp, err := client.Post(myurl, "application/json", bytes.NewReader(reqBody))
 	// TODO only retry on certain errors
 	if err != nil {
 		time.Sleep(time.Duration(POLL_INTERVAL) * time.Millisecond)
-		get_results(c, errChan, url, reqBody)
+		get_results(c, errChan, myurl, reqBody)
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
 		time.Sleep(time.Duration(POLL_INTERVAL) * time.Millisecond)
-		get_results(c, errChan, url, reqBody)
+		get_results(c, errChan, myurl, reqBody)
 	}
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
@@ -68,7 +79,7 @@ func get_results(c chan []string, errChan chan error, url string, reqBody []byte
 	status, inputs := decode_response(body)
 	if status == "active" {
 		time.Sleep(time.Duration(POLL_INTERVAL) * time.Millisecond)
-		get_results(c, errChan, url, reqBody)
+		get_results(c, errChan, myurl, reqBody)
 
 	} else if status == "ready" {
 		c <- inputs
