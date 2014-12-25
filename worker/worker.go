@@ -47,7 +47,7 @@ func recv() (string, int, []byte) {
 	fmt.Scanf("%s %d", &status, &size)
 	reader := bufio.NewReader(os.Stdin)
 	input := make([]byte, size)
-	reader.Read(input)
+	io.ReadFull(reader, input)
 	debug("recv", fmt.Sprintf("%d ", size)+string(input))
 	return status, size, input
 }
