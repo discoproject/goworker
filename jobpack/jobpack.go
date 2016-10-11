@@ -192,7 +192,7 @@ func getEffectiveInputs(inputs []string) []string {
 			urls := jobutil.GetUrls(rest)
 			for _, url := range urls {
 				// TODO we are using only the first replica here
-				effectiveInputs = append(effectiveInputs, url[0])
+				effectiveInputs = append(effectiveInputs, url)
 			}
 		} else {
 			effectiveInputs = append(effectiveInputs, input)
